@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kiri Coffee and Food</title>
+<link rel="icon" href="/kiri-logo.png">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{--sat:calc(max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px)) + var(--tg-content-safe-area-inset-top,0px));--bg:#F3ECE2;--card:#FBF7F1;--ink:#4A2913;--brand:#6B3A1F;--mid:#A87752;--mute:#7d6a5b;--line:#e6dccf;--on:#fff;
+:root{--sat:calc(max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px)) + var(--tg-content-safe-area-inset-top,0px));--bg:#F3ECE2;--card:#FBF7F1;--ink:#4A2913;--brand:#6B3A1F;--mid:#A87752;--mute:#7d6a5b;--line:#e6dccf;--on:#fff;--glass:rgba(255,255,255,.5);--edge:rgba(255,255,255,.75);--b1:#f2b880;--b2:#ffd9c2;--b3:#c9a27c;
 box-sizing:border-box;padding-top:var(--sat)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1611;--card:#2a1f18;--ink:#f1e4d6;--brand:#c98d5c;--mid:#7a4f31;--mute:#b5a191;--line:#3d2f25;--on:#1d1611}}
-:root[data-theme="dark"]{--bg:#1d1611;--card:#2a1f18;--ink:#f1e4d6;--brand:#c98d5c;--mid:#7a4f31;--mute:#b5a191;--line:#3d2f25;--on:#1d1611}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1611;--card:#2a1f18;--ink:#f1e4d6;--brand:#c98d5c;--mid:#7a4f31;--mute:#b5a191;--line:#3d2f25;--on:#1d1611;--glass:rgba(255,255,255,.09);--edge:rgba(255,255,255,.2);--b1:#7a3f1a;--b2:#3d2a52;--b3:#5a3a2a}}
+:root[data-theme="dark"]{--bg:#1d1611;--card:#2a1f18;--ink:#f1e4d6;--brand:#c98d5c;--mid:#7a4f31;--mute:#b5a191;--line:#3d2f25;--on:#1d1611;--glass:rgba(255,255,255,.09);--edge:rgba(255,255,255,.2);--b1:#7a3f1a;--b2:#3d2a52;--b3:#5a3a2a}
 *{box-sizing:border-box;margin:0}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font:15px/1.4 "Trebuchet MS","Segoe UI",system-ui,sans-serif;display:flex;justify-content:center}
@@ -39,7 +40,7 @@ h2{font:700 22px Georgia,serif;color:var(--brand);margin:6px 0 12px}
 #nav{position:absolute;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 0 calc(6px + env(safe-area-inset-bottom,0px))}
 .tab{flex:1;font-size:10.5px;color:var(--mute);position:relative}.tab b{display:block;font-size:19px;font-weight:400}.tab.on{color:var(--brand);font-weight:700}
 .dot{position:absolute;top:-2px;left:56%;background:var(--brand);color:var(--on);border-radius:9px;font-size:10px;padding:0 5px}
-#sheet{position:absolute;inset:0;background:#0006;display:flex;align-items:flex-end;z-index:20}
+#sheet{position:absolute;inset:0;background:var(--bg);display:flex;align-items:stretch;z-index:20}
 #sheet[hidden],#toast[hidden]{display:none}
 .sh{width:100%;max-height:88%;overflow-y:auto;background:var(--card);border-radius:24px 24px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
 .sh .ph{height:170px}
@@ -48,44 +49,116 @@ h2{font:700 22px Georgia,serif;color:var(--brand);margin:6px 0 12px}
 .bub.me{margin-left:auto;background:var(--brand);color:var(--on)}
 .bub small{display:block;opacity:.7;font-size:10px}
 #toast{position:absolute;left:16px;right:16px;top:calc(12px + var(--sat));background:var(--brand);color:var(--on);padding:11px;border-radius:12px;text-align:center;z-index:40}
-.qr{width:180px;height:180px;object-fit:contain;display:block;margin:8px auto;background:#fff;border-radius:12px}
+.qr{width:100%;max-width:300px;height:auto;object-fit:contain;display:block;margin:10px auto;background:#fff;border-radius:12px}
 .out{display:grid;place-items:center;height:100%;text-align:center;padding:30px}
+/* Liquid glass */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:var(--bg)}
+.bg i{position:absolute;width:62vmax;height:62vmax;border-radius:50%;filter:blur(70px);opacity:.85;animation:drift 24s ease-in-out infinite alternate}
+.bg i:nth-child(1){background:var(--b1);top:-18vmax;left:-18vmax}
+.bg i:nth-child(2){background:var(--b2);top:25%;right:-24vmax;animation-delay:-8s}
+.bg i:nth-child(3){background:var(--b3);bottom:-22vmax;left:5%;animation-delay:-16s}
+@keyframes drift{to{transform:translate(9vmax,7vmax) scale(1.18)}}
+@media(prefers-reduced-motion:reduce){.bg i{animation:none}}
+#app{background:transparent}
+.card,.box,.chip,.sm,.in,.bub,#nav,.sh{-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%)}
+.card,.box,.chip,.sm,.in,.bub{background:var(--glass);border:1px solid var(--edge);box-shadow:inset 0 1px 0 var(--edge)}
+#nav{background:var(--glass);border-top:1px solid var(--edge)}
+.sh{background:color-mix(in srgb,var(--card) 80%,transparent);border:1px solid var(--edge)}
+.chip.on,.sm.on{background:var(--brand);border-color:transparent;color:var(--on);box-shadow:inset 0 1px 0 #fff5,0 4px 14px #0003}
+.btn{background:linear-gradient(145deg,color-mix(in srgb,var(--brand) 80%,#fff),var(--brand));box-shadow:inset 0 1px 0 #fff6,0 8px 22px #0003}
+.btn.ghost{background:var(--glass);box-shadow:none;border:1px solid var(--edge);color:var(--brand)}
+.bub.me{background:var(--brand);border-color:transparent;color:var(--on)}
+.ph{background:rgba(255,255,255,.35)}
+.hd{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.lg{flex:none;width:76px;height:76px;border-radius:22px;display:grid;place-items:center;background:rgba(255,255,255,.72);border:1px solid var(--edge);box-shadow:0 6px 18px #0002}
+.lg img{width:60px;height:auto;display:block}
+.hi{font:700 22px Georgia,serif;color:var(--brand)}
+/* Layout from the design mockup */
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.lg.mini{width:62px;height:62px;border-radius:18px}.lg.mini img{width:48px}
+.lg.big{width:170px;height:170px;border-radius:44px}.lg.big img{width:136px}
+.bell{display:grid;place-items:center;text-decoration:none;color:inherit;width:42px;height:42px;border-radius:50%;background:var(--glass);border:1px solid var(--edge);font-size:18px}
+.gm{font:700 26px Georgia,serif;color:var(--brand);margin:6px 0 4px}
+.srch{text-align:left;color:var(--mute);border-radius:999px}
+.banner{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:14px 0 18px;padding:18px;border-radius:20px;color:#fff;background:linear-gradient(135deg,#b98459,#8a5a38);box-shadow:inset 0 1px 0 #fff5,0 10px 26px #0003}
+.banner small{opacity:.85}.banner h3{font:700 22px Georgia,serif;margin:2px 0 12px}
+.pill{background:#fff;color:var(--brand);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600}
+.cup{font-size:64px;line-height:1;filter:drop-shadow(0 6px 10px #0004)}
+.sec{font-size:16px}.link{font-size:13px;color:var(--brand)}
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0 18px}
+.cat{text-align:center;font-size:12px;color:var(--mute)}
+.cat span{display:grid;place-items:center;height:62px;border-radius:18px;font-size:26px;margin-bottom:5px;background:var(--glass);border:1px solid var(--edge);box-shadow:inset 0 1px 0 var(--edge)}
+.card.off,.pc.off{opacity:.5}
+.hs{display:flex;gap:12px;overflow-x:auto;padding:10px 2px 6px;scrollbar-width:none}
+.pc{flex:none;width:158px;padding:8px;border-radius:16px;background:var(--glass);border:1px solid var(--edge);box-shadow:inset 0 1px 0 var(--edge);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
+.pcm{display:block;width:100%;text-align:left}.pcm .ph{height:92px}.pcm b{display:block;font-size:14px;margin:6px 0 2px}
+.plus{width:30px;height:30px;border-radius:50%;background:var(--brand);color:var(--on);font-size:18px;line-height:30px}
+.splash{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;padding:40px 6px 8px}
+.pg{display:flex;flex-direction:column;width:100%;height:100%}
+.hero{position:relative;flex:none}
+.hero .ph{height:290px;border-radius:0 0 30px 30px;font-size:96px}
+.rb{position:absolute;top:14px;left:14px;width:42px;height:42px;border-radius:50%;background:var(--glass);border:1px solid var(--edge);font-size:20px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.pbody{flex:1;overflow-y:auto;padding:16px 18px}
+.pr{font:700 20px Georgia,serif;color:var(--brand)}
+.feat{display:flex;justify-content:space-around;text-align:center;margin:8px 0 14px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:20px}
+.feat small{display:block;font-size:11px;color:var(--mute);margin-top:3px}
+.foot{flex:none;padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px))}
+.composer{position:sticky;bottom:64px;display:flex;gap:8px;align-items:center;padding:8px 0}
+.composer .in{margin:0;flex:1}.composer .btn{width:auto;margin:0;padding:12px 20px}
+.bub.pend{opacity:.6}
 </style>
 </head>
 <body>
-<div id="app"><main id="v"></main><nav id="nav"></nav><div id="sheet" hidden></div><div id="toast" hidden></div></div>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+<div id="app"><main id="v"><p class="mute" style="padding:30px">Loading the menu…</p></main><nav id="nav"></nav><div id="sheet" hidden></div><div id="toast" hidden></div></div>
 <script>
+const LOGO = "/kiri-logo.png"; // your Kiri logo
+const SHOP_PHONE = "+85581441888", SHOP_PHONE_TEXT = "(+855) 81-441-888"; // Contact Kiri
 const PREVIEW = false; // true only for the design preview in chat. Leave false on your real site.
 const TELEGRAM_LINK = ""; // your shop's link, like https://t.me/YOUR_BOT/APP_NAME
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) { tg.ready(); tg.expand(); try { if (tg.isFullscreen && tg.exitFullscreen) tg.exitFullscreen(); } catch {} }
-const live = () => tg && tg.initData;
+// Telegram's login data normally comes from its script. If that script is blocked, read it from the address instead.
+const hashParam = k => { try { return new URLSearchParams(location.hash.slice(1)).get(k) || ""; } catch { return ""; } };
+const initData = () => (tg && tg.initData) || hashParam("tgWebAppData");
+const live = () => !!initData();
+const tgUser = () => { try { return (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || JSON.parse(new URLSearchParams(initData()).get("user")) || {}; } catch { return {}; } };
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const money = n => "$" + Number(n).toFixed(2);
 const code = o => o.id.split("-")[0].toUpperCase();
 const STAT = { awaiting_payment: ["Awaiting payment", "#b7791f"], paid_claimed: ["Checking payment", "#2b6cb0"], confirmed: ["Confirmed", "#2f855a"], preparing: ["Preparing", "#2f855a"], ready: ["Ready for pickup", "#2f855a"], on_the_way: ["On the way", "#2f855a"], done: ["Completed", "#718096"], cancelled: ["Cancelled", "#c53030"] };
-let M = { cats: [], items: [], sizes: [], sugars: [], fee: 0, bank: {}, admin: false };
-let S = { tab: "menu", cat: "", q: "", cart: [], mode: "pickup", form: { phone: "", address: "", note: "" }, prof: {}, orders: [], thread: [], with: null, wname: "", aTab: "orders", aOrders: [], threads: [], pay: null, item: null };
+let M = { cats: [], items: [], sizes: [], sugars: [], fee: 0, bank: {} };
+let S = { thread: [], tAfter: 0, unread: 0, banks: [], bankPick: null, qrs: {}, tab: "home", splash: false, cat: "", q: "", cart: [], mode: "pickup", form: { phone: "", address: "", note: "" }, prof: {}, orders: [], oTab: "pending", pay: null, item: null };
+
+let _r = Date.now(); try { const v = localStorage.getItem("kiriRead"); if (v) _r = +v; else localStorage.setItem("kiriRead", _r); } catch {}
+S.readAt = _r; // messages from the shop older than this count as read
 
 // ---- server calls (a tiny in-memory stand-in is used for the chat preview) ----
 async function api(a, b) {
   if (!live()) return mock(a, b || {});
-  const r = await fetch("/api/shop?action=" + a, { method: "POST", headers: { "Content-Type": "application/json", Authorization: "tma " + tg.initData }, body: JSON.stringify(b || {}) });
-  if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error || r.status); }
+  const c = new AbortController(), to = setTimeout(() => c.abort(), 20000); let r;
+  try { r = await fetch("/api/shop?action=" + a, { method: "POST", headers: { "Content-Type": "application/json", Authorization: "tma " + initData() }, body: JSON.stringify(b || {}), signal: c.signal }); }
+  catch (e) { throw new Error(e.name === "AbortError" ? "timeout" : "network"); } finally { clearTimeout(to); }
+  if (!r.ok) { const j = await r.json().catch(() => ({})); const e = new Error(j.error || r.status); e.status = r.status; e.detail = j.detail; e.reason = j.reason; throw e; }
   return r.json();
 }
 const D = { orders: [], msgs: [] };
 async function mock(a, b) {
   const it = (id, name, cat, price, e, drink) => ({ id, name, cat, price, img: id, e, drink, d: "Freshly made for you." });
-  if (a === "menu") return { cats: ["Coffee", "Matcha", "Food"], items: [it("latte", "Caffè Latte", "Coffee", 4.75, "☕", 1), it("cappuccino", "Cappuccino", "Coffee", 4.5, "☕", 1), it("matcha-latte", "Matcha Latte", "Matcha", 5.5, "🍵", 1), it("avocado-toast", "Avocado Toast", "Food", 8.5, "🥑", 0)], sizes: [["Small", 0], ["Medium", .5], ["Large", 1]], sugars: ["0%", "25%", "50%", "75%", "100%"], fee: 1.5, bank: { name: "ABA Bank", account: "000 123 456", holder: "Kiri Coffee" }, admin: false };
+  if (a === "menu") return { cats: ["Coffee", "Matcha", "Food"], items: [it("latte", "Caffè Latte", "Coffee", 4.75, "☕", 1), it("cappuccino", "Cappuccino", "Coffee", 4.5, "☕", 1), it("matcha-latte", "Matcha Latte", "Matcha", 5.5, "🍵", 1), it("avocado-toast", "Avocado Toast", "Food", 8.5, "🥑", 0)], sizes: [["Small", 0], ["Medium", .5], ["Large", 1]], sugars: ["0%", "25%", "50%", "75%", "100%"], fee: 1.5, bank: { name: "ABA Bank", account: "000 729 100", holder: "Kiri Coffee by D.TEP", link: "https://link.payway.com.kh/ABAPAYhT530450X" } };
   if (a === "profile") return { profile: { name: "Sample Customer" } };
   if (a === "profile_set") return { ok: 1 };
-  if (a === "order_create") { const m = (await mock("menu")).items; let t = 0; b.items.forEach(i => { const x = m.find(y => y.id === i.id); t += (x.price + (x.drink ? [0, .5, 1][i.size] : 0)) * i.qty; }); const o = { id: Date.now().toString(36) + "-1", items: b.items.map(i => ({ ...i, name: m.find(y => y.id === i.id).name, size: m.find(y => y.id === i.id).drink ? ["Small", "Medium", "Large"][i.size] : null, sugar: m.find(y => y.id === i.id).drink ? ["0%", "25%", "50%", "75%", "100%"][i.sugar] : null })), total: t + (b.mode === "delivery" ? 1.5 : 0), mode: b.mode, address: b.address, status: "awaiting_payment", at: Date.now() }; D.orders.unshift(o); return { order: o }; }
+  if (a === "order_create") { const m = (await mock("menu")).items; let t = 0; b.items.forEach(i => { const x = m.find(y => y.id === i.id); t += (x.price + (x.drink ? [0, .5, 1][i.size] : 0)) * i.qty; }); const o = { id: Date.now().toString(36) + "-1", items: b.items.map(i => ({ ...i, name: m.find(y => y.id === i.id).name, size: m.find(y => y.id === i.id).drink ? ["Small", "Medium", "Large"][i.size] : null, sugar: m.find(y => y.id === i.id).drink ? ["0%", "25%", "50%", "75%", "100%"][i.sugar] : null })), total: t + (b.mode === "delivery" ? 1.5 : 0), mode: b.mode, address: b.address, loc: b.loc, status: "awaiting_payment", at: Date.now() }; D.orders.unshift(o); return { order: o }; }
   if (a === "orders") return { orders: D.orders };
-  if (a === "order_pay") { D.orders.forEach(o => { if (o.id === b.id) o.status = "paid_claimed"; }); return { ok: 1 }; }
-  if (a === "msg_send") { D.msgs.push({ from: "me", text: b.text, at: Date.now() }, { from: "admin", text: "Thanks! We'll get back to you soon. ☕", at: Date.now() + 1 }); return { ok: 1 }; }
-  if (a === "msg_thread") return { messages: D.msgs };
+  if (a === "order_pay") { D.orders.forEach(o => { if (o.id === b.id) { o.status = "paid_claimed"; const k = (D.banks || []).find(x => x.id === b.bank); if (k) o.bank = k.name; } }); return { ok: 1 }; }
+  if (a === "msg_send") { const at = Date.now(); D.msgs.push({ text: b.text, at, mine: true, cid: b.cid }); setTimeout(() => D.msgs.push({ text: "Thanks! We'll get back to you soon. ☕", at: Date.now(), mine: false, cid: "" }), 1500); return { ok: 1 }; }
+  if (a === "msg_thread") return { messages: D.msgs.filter(m => m.at > (b.after || 0)) };
+  if (a === "order_cancel") { D.orders.forEach(o => { if (o.id === b.id && o.status === "awaiting_payment") o.status = "cancelled"; }); return { ok: 1 }; }
+  if (a === "order_remove") { D.orders = D.orders.filter(o => o.id !== b.id); return { ok: 1 }; }
+  D.banks = D.banks || [{ id: "aba", name: "ABA Bank", account: "000 729 100", holder: "Kiri Coffee by D.TEP", link: "https://link.payway.com.kh/ABAPAYhT530450X", on: true, qrUrl: D.qr || "" }, { id: "acleda", name: "ACLEDA Bank (sample)", account: "0012 3456 7890", holder: "Kiri Coffee", link: "", on: true, qrUrl: "" }, { id: "wing", name: "Wing (sample)", account: "012 345 678", holder: "Kiri Coffee", link: "", on: true, qrUrl: "" }, { id: "bakong", name: "Bakong (sample)", account: "kiri@bkrt", holder: "Kiri Coffee", link: "", on: true, qrUrl: "" }];
+  if (a === "banks") return { banks: D.banks.filter(x => x.on !== false) };
+  if (a === "bank_qr") return { qr: "" };
   return {};
 }
 
@@ -94,18 +167,66 @@ const find = id => M.items.find(x => x.id === id);
 const linePrice = l => { const m = find(l.id); return (m.price + (m.drink ? M.sizes[l.size][1] : 0)) * l.qty; };
 const sub = () => S.cart.reduce((a, l) => a + linePrice(l), 0);
 const fee = () => S.mode === "delivery" ? M.fee : 0;
-const pic = m => `<img src="/menu/${m.img}.png" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode('${m.e}'))">`;
+const pic = m => `<img src="/menu/${m.img}.png" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode('${m.e}\uFE0F'))">`;
 let tt; const toast = m => { const e = $("toast"); e.textContent = m; e.hidden = false; clearTimeout(tt); tt = setTimeout(() => e.hidden = true, 2600); };
 const linesText = o => o.items.map(i => `${i.qty}× ${esc(i.name)}${i.size ? ` (${esc(i.size)}, sugar ${esc(i.sugar)})` : ""}`).join(", ");
-const go = t => { S.tab = t; render(); if (t === "orders") loadOrders(); if (t === "chat") loadThread(); if (t === "admin") loadAdmin(); };
+const ask = msg => new Promise(res => (tg && tg.isVersionAtLeast && tg.isVersionAtLeast("6.2") && tg.showConfirm) ? tg.showConfirm(msg, res) : res(confirm(msg)));
+const mapLink = l => `https://www.google.com/maps?q=${l.lat},${l.lng}`;
+function getPos() { // one fresh GPS reading, through Telegram when it can, otherwise the phone's own location
+  if (!live()) return Promise.resolve({ lat: 11.5564, lng: 104.9282, acc: 15 }); // chat preview only
+  return new Promise((res, rej) => {
+    const web = () => navigator.geolocation ? navigator.geolocation.getCurrentPosition(p => res({ lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy }), () => rej(new Error("denied")), { enableHighAccuracy: true, timeout: 15000 }) : rej(new Error("unsupported"));
+    const lm = tg && tg.LocationManager;
+    if (!lm) return web();
+    const get = () => lm.getLocation(l => l ? res({ lat: l.latitude, lng: l.longitude, acc: l.horizontal_accuracy || 0 }) : web());
+    try { lm.isInited ? get() : lm.init(get); } catch { web(); }
+  });
+}
+const go = t => {
+  S.tab = t;
+  if (t === "pay") S.bankPick = null;
+  render(); if (t === "orders") loadOrders(); if (t === "chat") { S.thread = []; S.tAfter = 0; loadThread(); }
+};
+// Telegram shows its own "Close" control at the top; this wires up the native "<" back control to sit alongside it.
+function updateBackButton() {
+  if (!tg || !tg.BackButton) return;
+  try { (!S.splash && (S.item || S.tab !== "home")) ? tg.BackButton.show() : tg.BackButton.hide(); } catch {}
+}
+function goBack() {
+  if (S.item) { S.item = null; return sheet(); }
+  if (S.tab === "pay" && S.bankPick) { S.bankPick = null; return render(); }
+  if (S.tab === "pay") return go("orders");
+  if (S.tab === "chat") return go("me");
+  if (S.tab !== "home") return go("home");
+}
+if (tg && tg.BackButton) { try { tg.BackButton.onClick(goBack); } catch {} }
 
 // ---- screens ----
+const ICON = { Coffee: "☕", Matcha: "🍵", "Tea & More": "🫖", Food: "🍴" };
+const POPULAR = ["latte", "cappuccino", "strawberry-matcha", "breakfast-sandwich"];
+function splashView() {
+  return `<div class="splash"><span class="lg big"><img src="${LOGO}" alt="Kiri coffee and food"></span>
+  <div><h2 class="gm" style="font-size:30px">Good Coffee<br>Better Moments</h2><p class="mute">Great coffee, fresh food,<br>&amp; a cozy place for you.</p></div>
+  <button class="btn" data-a="getstarted">Get Started →</button></div>`;
+}
+function homeView() {
+  const h = new Date().getHours(), hi = h < 12 ? "Good Morning ☀️" : h < 18 ? "Good Afternoon 🌤️" : "Good Evening 🌙";
+  let pop = POPULAR.map(find).filter(Boolean); if (pop.length < 3) pop = M.items.slice(0, 4);
+  return `<div class="top"><span class="lg mini"><img src="${LOGO}" alt="Kiri coffee and food"></span><span style="display:flex;gap:8px"><a class="bell" href="tel:${SHOP_PHONE}" aria-label="Call Kiri">📞</a><button class="bell" data-a="tab" data-v="orders" aria-label="Order updates">🔔</button></span></div>
+  <h2 class="gm">${hi}</h2><p class="mute" style="margin-bottom:12px">Enjoy your favorite coffee<br>and fresh food today.</p>
+  <button class="in srch" data-a="search">🔍&nbsp; Search menu…</button>
+  <div class="banner"><div><small>Start Your Day</small><h3>With Great Coffee</h3><button class="pill" data-a="tab" data-v="menu">Explore Menu →</button></div><span class="cup">☕</span></div>
+  <div class="row"><b class="sec">Our Favorites</b><button class="link" data-a="tab" data-v="menu">See All →</button></div>
+  <div class="cats">${M.cats.slice(0, 4).map(c => `<button class="cat" data-a="homecat" data-v="${esc(c)}"><span>${ICON[c] || "🍽️"}</span>${esc(c)}</button>`).join("")}</div>
+  <b class="sec">Popular Items</b>
+  <div class="hs">${pop.map(m => `<div class="pc ${m.off ? "off" : ""}"><button class="pcm" data-a="open" data-v="${m.id}"><div class="ph">${pic(m)}</div><b>${esc(m.name)}</b></button><div class="row"><span class="mute">${m.off ? "Sold out" : money(m.price)}</span>${m.off ? "" : `<button class="plus" data-a="quick" data-v="${m.id}" aria-label="Add ${esc(m.name)} to cart">+</button>`}</div></div>`).join("")}</div>`;
+}
 function menuView() {
   const q = S.q.toLowerCase(), list = M.items.filter(m => (!S.cat || m.cat === S.cat) && m.name.toLowerCase().includes(q));
-  return `<div class="hd"><span class="brand">Kiri</span><small>coffee and food</small></div>
+  return `<h2>Menu</h2>
   <input id="q" class="in" placeholder="Search menu…" value="${esc(S.q)}" aria-label="Search menu">
   <div class="chips">${["", ...M.cats].map(c => `<button class="chip ${S.cat === c ? "on" : ""}" data-a="cat" data-v="${esc(c)}">${esc(c || "All")}</button>`).join("")}</div>
-  <div class="grid">${list.map(m => `<button class="card" data-a="open" data-v="${m.id}"><div class="ph">${pic(m)}</div><b>${esc(m.name)}</b><span>${money(m.price)}</span></button>`).join("") || '<p class="mute">Nothing found.</p>'}</div>`;
+  <div class="grid">${list.map(m => `<button class="card ${m.off ? "off" : ""}" data-a="open" data-v="${m.id}"><div class="ph">${pic(m)}</div><b>${esc(m.name)}</b><span>${m.off ? "Sold out" : money(m.price)}</span></button>`).join("") || '<p class="mute">Nothing found.</p>'}</div>`;
 }
 function cartView() {
   if (!S.cart.length) return `<h2>Your cart</h2><p class="mute">Your cart is empty. Pick something from the menu.</p><button class="btn" data-a="tab" data-v="menu">Browse menu</button>`;
@@ -117,88 +238,164 @@ function cartView() {
   <div class="opts"><button class="sm ${S.mode === "pickup" ? "on" : ""}" data-a="mode" data-v="pickup">Pick up</button><button class="sm ${S.mode === "delivery" ? "on" : ""}" data-a="mode" data-v="delivery">Delivery (+${money(M.fee)})</button></div>
   <input class="in" data-f="phone" placeholder="Phone number" inputmode="tel" value="${esc(f.phone)}" aria-label="Phone number">
   ${S.mode === "delivery" ? `<textarea class="in" data-f="address" rows="2" placeholder="Delivery address" aria-label="Delivery address">${esc(f.address)}</textarea>` : ""}
+  ${S.mode === "delivery" && S.prof.loc ? `<label class="row"><span>📍 Send my saved location${S.prof.locNote ? " (" + esc(S.prof.locNote) + ")" : ""}</span><input type="checkbox" data-f2="useLoc" ${f.useLoc !== false ? "checked" : ""}></label>` : ""}
   <input class="in" data-f="note" placeholder="Note for the shop (optional)" value="${esc(f.note)}" aria-label="Note">
   <div class="box"><div class="row"><span>Subtotal</span><span>${money(sub())}</span></div>${S.mode === "delivery" ? `<div class="row"><span>Delivery</span><span>${money(fee())}</span></div>` : ""}<div class="row"><b>Total</b><b>${money(sub() + fee())}</b></div></div>
   <button class="btn" data-a="place">Place order and pay by bank</button>`;
 }
 function payView() {
-  const o = S.pay, b = M.bank; if (!o) return `<h2>Bank payment</h2><p class="mute">No order to pay right now.</p>`;
-  return `<h2>Bank payment</h2><div class="box"><p>Please transfer <b>${money(o.total)}</b> to:</p>
-  <p style="margin:8px 0">${esc(b.name || "Bank")}<br><b>${esc(b.account || "Bank account not set yet")}</b><br>${esc(b.holder || "")}</p>
-  <button class="sm" data-a="copy" data-v="${esc(b.account || "")}">Copy account number</button>
-  <p style="margin-top:10px">Reference: <b>#${code(o)}</b></p><img class="qr" src="/bank-qr.png" alt="Bank QR code" onerror="this.remove()"></div>
-  <p class="mute">After you pay, tap the button below. The shop checks the payment and confirms your order.</p>
-  <button class="btn" data-a="paid">I've paid</button><button class="btn ghost" data-a="tab" data-v="orders">Pay later</button>`;
+  const o = S.pay; if (!o) return `<h2>Pay now</h2><p class="mute">No order to pay right now.</p>`;
+  if (!S.banks.length) return `<h2>Pay now</h2><p class="mute">Payment details aren't available yet. Please message the shop.</p>`;
+  const b = S.banks.find(x => x.id === S.bankPick);
+  if (!b) return `<h2>Pay now</h2><p class="mute" style="margin-bottom:6px">Order #${code(o)} · Total <b>${money(o.total)}</b></p><p class="mute">Choose the bank you want to pay with.</p>
+    ${S.banks.map(x => `<button class="btn" data-a="bank" data-v="${esc(x.id)}">Pay now · ${esc(x.name)}</button>`).join("")}
+    <p class="mute" style="margin-top:12px;font-size:12px">The shop confirms your order as soon as it sees your payment, and you get a Telegram message.</p>`;
+  const qr = b.qrUrl || S.qrs[b.id] || "";
+  return `<h2>Pay with ${esc(b.name)}</h2><button class="sm" data-a="bankchange">← Choose another bank</button>
+  <div class="box"><p>Please pay <b>${money(o.total)}</b> to <b>${esc(b.holder || "the shop")}</b>.</p>
+  ${b.link ? `<button class="btn" data-a="abalink" data-v="${esc(b.link)}">Pay now</button><p class="mute" style="font-size:12px">If the app asks for an amount, enter ${money(o.total)}. If the banking app doesn't open, tap ⋯ at the top of Telegram and choose "Open in browser", or use the QR below.</p><button class="sm" data-a="copy" data-v="${esc(b.link)}">Copy payment link</button>` : ""}
+  ${qr ? `<img class="qr" src="${esc(qr)}" alt="${esc(b.name)} QR code" onerror="this.remove()"><p class="mute" style="font-size:12px">Scan the QR with your banking app, or take a screenshot and choose "scan from gallery".</p>` : ""}
+  <p style="margin:10px 0">${esc(b.name)}<br><b>${esc(b.account || "Account number not set yet")}</b><br>${esc(b.holder || "")}</p>
+  ${b.account ? `<button class="sm" data-a="copy" data-v="${esc(b.account)}">Copy account number</button>` : ""}
+  <p style="margin-top:10px">Reference: <b>#${code(o)}</b> <span class="mute">(write it in the payment note)</span></p></div>
+  <p class="mute">We're watching for your payment. The shop confirms your order and sends you a Telegram message.</p>`;
 }
-function orderCard(o, admin) {
+function orderCard(o) {
   const [t, c] = STAT[o.status] || [o.status, "#718096"];
-  const btns = admin ? `<div class="opts">${[["confirmed", "Confirm"], ["preparing", "Preparing"], [o.mode === "delivery" ? "on_the_way" : "ready", o.mode === "delivery" ? "On the way" : "Ready"], ["done", "Done"], ["cancelled", "Cancel"]].map(([s, l]) => `<button class="sm ${o.status === s ? "on" : ""}" data-a="st" data-v="${o.id}|${s}">${l}</button>`).join("")}<button class="sm" data-a="chatwith" data-v="${o.uid}|${esc(o.name)}">Message</button></div>` : "";
   return `<div class="box"><div class="row"><b>#${code(o)}</b><span class="badge" style="background:${c}">${t}</span></div>
-  ${admin ? `<div>${esc(o.name)} ${o.username ? "@" + esc(o.username) : ""} · ${esc(o.phone)}</div>` : ""}
   <div class="mute">${linesText(o)}</div>
-  <div class="mute">${o.mode === "delivery" ? "Delivery to " + esc(o.address || "") : "Pick up"}${o.note ? " · Note: " + esc(o.note) : ""}</div>
-  <div class="row"><b>${money(o.total)}</b>${!admin && o.status === "awaiting_payment" ? `<button class="sm on" data-a="paynow" data-v="${o.id}">Pay now</button>` : ""}</div>${btns}</div>`;
+  ${o.bank ? `<div class="mute">Bank: ${esc(o.bank)}</div>` : ""}
+  ${o.status === "paid_claimed" ? '<div class="mute" style="margin-top:4px">We are checking your bank transfer. You will get a Telegram message as soon as the shop confirms it.</div>' : ""}
+  <div class="mute">${o.mode === "delivery" ? "Delivery to " + esc(o.address || (o.loc ? "your shared location" : "")) : "Pick up"}${o.loc ? " · 📍 location shared" : ""}${o.note ? " · Note: " + esc(o.note) : ""}</div>
+  <div class="row"><b>${money(o.total)}</b>${(o.status === "awaiting_payment" || o.status === "paid_claimed") ? `<button class="sm on" data-a="paynow" data-v="${o.id}">${o.status === "awaiting_payment" ? "Pay now" : "Payment details"}</button>` : ""}</div>
+  ${o.status === "awaiting_payment" ? `<div class="opts"><button class="sm" data-a="ocancel" data-v="${o.id}">Cancel order</button></div>` : ""}
+  ${o.status === "paid_claimed" ? '<div class="opts"><button class="sm" data-a="tab" data-v="chat">💬 Message the shop to change or cancel</button></div>' : ""}
+  ${o.status === "cancelled" || o.status === "done" ? `<div class="opts"><button class="sm" data-a="oremove" data-v="${o.id}">Remove from my list</button></div>` : ""}</div>`;
 }
-const ordersView = () => `<h2>My orders</h2>${S.orders.map(o => orderCard(o)).join("") || '<p class="mute">No orders yet.</p>'}`;
+const ORDER_GROUP = o => o.status === "done" ? "succeeded" : o.status === "cancelled" ? "cancelled" : "pending";
+function ordersView() {
+  const groups = ["pending", "succeeded", "cancelled"], label = { pending: "Pending", succeeded: "Succeeded", cancelled: "Cancelled" };
+  const list = S.orders.filter(o => ORDER_GROUP(o) === S.oTab);
+  return `<h2>My orders</h2><div class="chips">${groups.map(g => `<button class="chip ${S.oTab === g ? "on" : ""}" data-a="otab" data-v="${g}">${label[g]} (${S.orders.filter(o => ORDER_GROUP(o) === g).length})</button>`).join("")}</div>
+  ${list.map(o => orderCard(o)).join("") || '<p class="mute">No orders here yet.</p>'}`;
+}
+const threadHtml = () => S.thread.map(m => `<div class="bub ${m.mine ? "me" : ""}${m.pending ? " pend" : ""}">${esc(m.text)}<small>${m.pending ? "Sending…" : new Date(m.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</small></div>`).join("") || '<p class="mute">Ask about your order or the menu. The shop replies here, and you also get a Telegram message.</p>';
 function chatView() {
-  return `<h2>${S.with ? "Chat with " + esc(S.wname) : "Message the shop"}</h2>${S.with ? '<button class="sm" data-a="admin" data-v="">← Back</button>' : ""}
-  <div>${S.thread.map(m => `<div class="bub ${m.mine ? "me" : ""}">${esc(m.text)}<small>${new Date(m.at).toLocaleString()}</small></div>`).join("") || '<p class="mute">Ask about your order or the menu. The shop will reply here.</p>'}</div>
-  <input id="msg" class="in" placeholder="Type a message…" aria-label="Message"><button class="btn" data-a="send">Send</button>`;
+  return `<h2>Message the shop</h2><button class="sm" data-a="tab" data-v="me">← Back</button>
+  <div id="th">${threadHtml()}</div>
+  <div class="composer"><input id="msg" class="in" placeholder="Type a message…" aria-label="Message" autocomplete="off"><button class="btn" data-a="send">Send</button></div>`;
+}
+function mergeMsgs(list) { // new messages replace the "Sending…" copies, and nothing is shown twice
+  for (const m of list) {
+    const i = S.thread.findIndex(x => (m.cid && x.cid === m.cid) || (x.at === m.at && x.text === m.text));
+    if (i >= 0) S.thread[i] = m; else S.thread.push(m);
+    S.tAfter = Math.max(S.tAfter, m.at);
+  }
+  S.thread.sort((a, b) => a.at - b.at);
+}
+function paintThread() {
+  const th = $("th"); if (!th) return;
+  const box = $("v"), stick = box.scrollHeight - box.scrollTop - box.clientHeight < 160;
+  th.innerHTML = threadHtml(); if (stick) box.scrollTop = box.scrollHeight;
+}
+function markRead() { S.readAt = Math.max(S.readAt, S.tAfter); try { localStorage.setItem("kiriRead", S.readAt); } catch {} if (S.unread) { S.unread = 0; nav(); } }
+async function sendMsg() {
+  const i = $("msg"), text = i.value.trim(); if (!text) return; i.value = "";
+  const cid = Math.random().toString(36).slice(2, 10);
+  S.thread.push({ text, at: Date.now(), mine: true, cid, pending: true }); paintThread();
+  try { await api("msg_send", { text, cid }); loadThread(); }
+  catch { S.thread = S.thread.filter(m => m.cid !== cid); paintThread(); i.value = text; toast("Couldn't send. Try again."); }
+}
+async function checkUnread() { // a quiet check while the customer is on another screen
+  try {
+    const n = (await api("msg_thread", { after: S.readAt })).messages.filter(m => !m.mine).length;
+    if (n > S.unread) { toast("💬 New message from Kiri"); try { tg.HapticFeedback.notificationOccurred("success"); } catch {} }
+    S.unread = n; nav();
+  } catch {}
 }
 function meView() {
-  const u = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || {}, p = S.prof;
+  const u = tgUser(), p = S.prof;
   return `<h2>Profile</h2><div class="box"><b>${esc(p.name || [u.first_name, u.last_name].filter(Boolean).join(" ") || "Guest")}</b><div class="mute">${u.username ? "@" + esc(u.username) : "Telegram customer"}</div></div>
   <input class="in" data-p="phone" placeholder="Phone number" inputmode="tel" value="${esc(p.phone || "")}" aria-label="Phone number">
   <textarea class="in" data-p="address" rows="2" placeholder="Default delivery address" aria-label="Address">${esc(p.address || "")}</textarea>
-  <button class="btn" data-a="saveprof">Save profile</button>`;
-}
-function adminView() {
-  if (S.with) return chatView();
-  const tabs = `<div class="opts"><button class="sm ${S.aTab === "orders" ? "on" : ""}" data-a="atab" data-v="orders">Orders</button><button class="sm ${S.aTab === "chats" ? "on" : ""}" data-a="atab" data-v="chats">Customer messages</button></div>`;
-  return `<h2>Shop admin</h2>${tabs}` + (S.aTab === "orders" ? S.aOrders.map(o => orderCard(o, true)).join("") || '<p class="mute">No orders yet.</p>'
-    : S.threads.map(t => `<button class="box row" style="width:100%;text-align:left" data-a="chatwith" data-v="${t.uid}|${esc(t.name)}"><span><b>${esc(t.name)}</b><br><span class="mute">${esc(t.text)}</span></span></button>`).join("") || '<p class="mute">No messages yet.</p>');
+  <button class="btn" data-a="saveprof">Save profile</button>
+  <div class="box"><b>📍 My location</b><p class="mute" style="margin:4px 0 8px;font-size:13px">Share where you are so the shop can find you for delivery. It is saved only when you tap the button, and you can remove it at any time.</p>
+  ${p.loc ? `<div>Saved · accuracy about ${Math.max(1, Math.round(p.loc.acc || 0))} m<br><span class="mute" style="font-size:12px">${new Date(p.loc.at).toLocaleString()}</span></div>` : '<div class="mute">No location saved yet.</div>'}
+  <textarea class="in" data-p="locNote" rows="2" placeholder="Describe the place (for example: blue gate, 2nd floor, call when you arrive)" aria-label="Location description">${esc(p.locNote || "")}</textarea>
+  <div class="opts"><button class="sm on" data-a="getloc">📍 ${p.loc ? "Update my location" : "Share my location"}</button>${p.loc ? '<button class="sm" data-a="openmap">🗺 View on map</button><button class="sm" data-a="clearloc">Remove</button>' : ""}</div></div>
+  <div class="box"><b>📞 Contact Kiri</b><div class="mute" style="margin:2px 0 8px">${SHOP_PHONE_TEXT}</div><div class="opts"><a class="sm on" href="tel:${SHOP_PHONE}" style="text-decoration:none">Call now</a><button class="sm" data-a="copy" data-v="${SHOP_PHONE_TEXT}">Copy number</button><button class="sm" data-a="tab" data-v="chat">💬 Message${S.unread ? " (" + S.unread + ")" : ""}</button></div></div>
+  <h2 style="font-size:18px;margin-top:20px">Help</h2>
+  <button class="btn ghost" data-a="tab" data-v="chat">💬 Message the shop</button>`;
 }
 function sheetView() {
   const it = S.item, m = find(it.id); if (!m) return "";
   const price = (m.price + (m.drink ? M.sizes[it.size][1] : 0)) * it.qty;
-  return `<div class="sh"><div class="ph">${pic(m)}</div><div class="row"><h2 style="margin:8px 0">${esc(m.name)}</h2><b>${money(m.price)}</b></div><p class="mute">${esc(m.d || "")}</p>
-  ${m.drink ? `<b>Cup size</b><div class="opts">${M.sizes.map((s, i) => `<button class="sm ${it.size === i ? "on" : ""}" data-a="size" data-v="${i}">${s[0]}${s[1] ? " +" + money(s[1]) : ""}</button>`).join("")}</div>
-  <b>Sugar level</b><div class="opts">${M.sugars.map((s, i) => `<button class="sm ${it.sugar === i ? "on" : ""}" data-a="sugar" data-v="${i}">${s}</button>`).join("")}</div>` : ""}
-  <div class="row"><b>Quantity</b><span><button class="sm" data-a="iq" data-v="-1" aria-label="Less">−</button> ${it.qty} <button class="sm" data-a="iq" data-v="1" aria-label="More">+</button></span></div>
-  <button class="btn" data-a="add">Add to Cart • ${money(price)}</button><button class="btn ghost" data-a="close">Close</button></div>`;
+  return `<div class="pg"><div class="hero"><div class="ph">${pic(m)}</div><button class="rb" data-a="close" aria-label="Back">←</button></div>
+  <div class="pbody"><div class="row"><h2 style="margin:0">${esc(m.name)}</h2><b class="pr">${money(m.price)}</b></div><p class="mute" style="margin:6px 0 14px">${esc(m.d || "")}</p>
+  ${m.drink ? `<b>Cup size</b><div class="opts">${M.sizes.map((x, i) => `<button class="sm ${it.size === i ? "on" : ""}" data-a="size" data-v="${i}">${x[0]}${x[1] ? " +" + money(x[1]) : ""}</button>`).join("")}</div>
+  <b>Sugar level</b><div class="opts">${M.sugars.map((x, i) => `<button class="sm ${it.sugar === i ? "on" : ""}" data-a="sugar" data-v="${i}">${x}</button>`).join("")}</div>` : ""}
+  <div class="feat"><span>🌿<small>Freshly made</small></span><span>💛<small>High quality</small></span><span>🌾<small>Natural ingredients</small></span></div>
+  <div class="row"><b>Quantity</b><span><button class="sm" data-a="iq" data-v="-1" aria-label="Less">−</button> &nbsp;${it.qty}&nbsp; <button class="sm" data-a="iq" data-v="1" aria-label="More">+</button></span></div></div>
+  <div class="foot"><button class="btn" data-a="${m.off ? "close" : "add"}">${m.off ? "Sold out right now" : "Add to Cart • " + money(price)}</button></div></div>`;
 }
 function nav() {
-  const n = S.cart.reduce((a, l) => a + l.qty, 0), t = [["menu", "☕", "Menu"], ["cart", "🛒", "Cart"], ["orders", "🧾", "Orders"], ["chat", "💬", "Chat"], ["me", "👤", "Profile"]];
-  if (M.admin) t.push(["admin", "🛠", "Admin"]);
-  $("nav").innerHTML = t.map(([k, i, l]) => `<button class="tab ${S.tab === k || (S.tab === "pay" && k === "orders") ? "on" : ""}" data-a="tab" data-v="${k}"><b>${i}</b>${l}${k === "cart" && n ? `<span class="dot">${n}</span>` : ""}</button>`).join("");
+  const n = S.cart.reduce((a, l) => a + l.qty, 0), cur = { pay: "orders", chat: "me" }[S.tab] || S.tab;
+  const t = [["home", "🏠", "Home"], ["menu", "📖", "Menu"], ["cart", "🛒", "Cart"], ["orders", "🧾", "Orders"], ["me", "👤", "Profile"]];
+  $("nav").innerHTML = t.map(([k, i, l]) => `<button class="tab ${cur === k ? "on" : ""}" data-a="tab" data-v="${k}"><b>${i}</b>${l}${k === "cart" && n ? `<span class="dot">${n}</span>` : ""}${k === "me" && S.unread ? `<span class="dot">${S.unread}</span>` : ""}</button>`).join("");
 }
 function render() {
+  $("nav").style.display = S.splash ? "none" : "";
+  if (S.splash) { $("v").innerHTML = splashView(); updateBackButton(); return; }
   const f = document.activeElement && document.activeElement.id === "q";
-  $("v").innerHTML = { menu: menuView, cart: cartView, pay: payView, orders: ordersView, chat: chatView, me: meView, admin: adminView }[S.tab]();
+  $("v").innerHTML = { home: homeView, menu: menuView, cart: cartView, pay: payView, orders: ordersView, chat: chatView, me: meView }[S.tab]();
   nav(); if (f) { const q = $("q"); q.focus(); q.setSelectionRange(q.value.length, q.value.length); }
+  updateBackButton();
 }
-function sheet() { $("sheet").innerHTML = S.item ? sheetView() : ""; $("sheet").hidden = !S.item; }
+function sheet() { $("sheet").innerHTML = S.item ? sheetView() : ""; $("sheet").hidden = !S.item; updateBackButton(); }
 
 // ---- data ----
 async function loadOrders() { try { S.orders = (await api("orders")).orders; if (S.tab === "orders") render(); } catch {} }
-async function loadThread() { try { const r = await api("msg_thread", { with: S.with }); S.thread = r.messages; if (S.tab === "chat" || (S.tab === "admin" && S.with)) render(); } catch {} }
-async function loadAdmin() { try { S.aOrders = (await api("admin_orders")).orders; S.threads = (await api("msg_threads")).threads; if (S.tab === "admin") render(); } catch {} }
+async function loadThread() {
+  try { mergeMsgs((await api("msg_thread", { after: S.tAfter })).messages); if (S.tab === "chat") { paintThread(); markRead(); } } catch {}
+}
+async function loadBanks() { // the banks the shop accepts
+  try { S.banks = (await api("banks")).banks; } catch {}
+  if (S.tab === "pay") render();
+}
+async function loadQr(id) { // bank QR pictures are fetched only when a customer picks that bank
+  const b = S.banks.find(x => x.id === id);
+  if (!b || b.qrUrl || S.qrs[id] !== undefined) return;
+  S.qrs[id] = b.hasQr ? ((await api("bank_qr", { id }).catch(() => ({}))).qr || "") : "";
+  if (S.tab === "pay") render();
+}
 async function place() {
   const f = S.form;
   if (!f.phone.trim()) return toast("Please add your phone number");
-  if (S.mode === "delivery" && !f.address.trim()) return toast("Please add your delivery address");
+  const withLoc = S.mode === "delivery" && S.prof.loc && f.useLoc !== false;
+  if (S.mode === "delivery" && !f.address.trim() && !withLoc) return toast("Please add your delivery address or share your location");
   try {
-    const r = await api("order_create", { items: S.cart.map(l => ({ id: l.id, size: l.size, sugar: l.sugar, qty: l.qty })), mode: S.mode, phone: f.phone, address: f.address, note: f.note });
+    const r = await api("order_create", { items: S.cart.map(l => ({ id: l.id, size: l.size, sugar: l.sugar, qty: l.qty })), mode: S.mode, phone: f.phone, address: f.address, note: f.note, loc: withLoc ? S.prof.loc : undefined, locNote: withLoc ? S.prof.locNote : undefined });
     S.cart = []; S.pay = r.order; go("pay");
-  } catch { toast("Couldn't place the order. Please try again."); }
+  } catch (e) { toast(String(e.message).startsWith("sold out") ? "Sorry, " + e.message : "Couldn't place the order. Please try again."); }
 }
 
 // ---- events ----
+// Banking apps only open from the phone's real browser. Telegram's built-in browser (the default on Android) can't hand a link to the ABA app.
+function openExternal(url) {
+  try {
+    if (tg && tg.openLink) tg.openLink(url, /android/i.test((tg.platform || "") + navigator.userAgent) ? { try_browser: "chrome" } : undefined);
+    else window.open(url, "_blank");
+  } catch { window.open(url, "_blank"); }
+}
 $("app").addEventListener("click", async e => {
   const t = e.target.closest("[data-a]"); if (!t) return; const a = t.dataset.a, v = t.dataset.v;
   if (a === "tab") go(v);
+  else if (a === "getstarted") { S.splash = false; try { localStorage.setItem("kiriSeen", "1"); } catch {} render(); }
+  else if (a === "search") { S.tab = "menu"; render(); const q = $("q"); if (q) q.focus(); }
+  else if (a === "homecat") { S.cat = v; go("menu"); }
+  else if (a === "quick") { if (find(v).off) return toast(find(v).name + " is sold out right now"); const x = { id: v, size: 0, sugar: 2, qty: 1 }, same = S.cart.find(l => l.id === v && l.size === 0 && l.sugar === 2); if (same) same.qty++; else S.cart.push(x); nav(); toast(find(v).name + " added to cart"); }
   else if (a === "cat") { S.cat = v; render(); }
-  else if (a === "open") { S.item = { id: v, size: 0, sugar: 2, qty: 1 }; sheet(); }
+  else if (a === "open") { if (find(v).off) return toast(find(v).name + " is sold out right now"); S.item = { id: v, size: 0, sugar: 2, qty: 1 }; sheet(); }
   else if (a === "size" || a === "sugar") { S.item[a] = +v; sheet(); }
   else if (a === "iq") { S.item.qty = Math.max(1, S.item.qty + +v); sheet(); }
   else if (a === "close") { S.item = null; sheet(); }
@@ -211,35 +408,70 @@ $("app").addEventListener("click", async e => {
   else if (a === "rm") { S.cart.splice(+v, 1); render(); }
   else if (a === "mode") { S.mode = v; render(); }
   else if (a === "place") place();
-  else if (a === "copy") { try { await navigator.clipboard.writeText(v); toast("Account number copied"); } catch { toast(v); } }
-  else if (a === "paid") { try { await api("order_pay", { id: S.pay.id }); toast("Thank you! We'll check your payment."); S.pay = null; go("orders"); } catch { toast("Couldn't send. Try again."); } }
+  else if (a === "copy") { try { await navigator.clipboard.writeText(v); toast("Copied"); } catch { toast(v); } }
+  else if (a === "abalink") openExternal(v);
+  else if (a === "bank") { // "Pay now" on a bank
+    const bk = S.banks.find(x => x.id === v); S.bankPick = v; render(); loadQr(v);
+    if (bk && bk.link) openExternal(bk.link); // open first, while it still counts as the customer's tap
+    try { await api("order_pay", { id: S.pay.id, bank: v }); } catch { toast("Couldn't tell the shop about your payment. Please try again."); }
+  }
+  else if (a === "bankchange") { S.bankPick = null; render(); }
+  else if (a === "getloc") {
+    toast("Finding your location…");
+    try { S.prof.loc = { ...(await getPos()), at: Date.now() }; await api("profile_set", S.prof); render(); toast("Location saved"); }
+    catch (e) { toast(e.message === "unsupported" ? "This phone can't share location here." : "Couldn't get your location. Allow location for Telegram in your phone settings, then try again."); }
+  }
+  else if (a === "openmap") openExternal(mapLink(S.prof.loc));
+  else if (a === "clearloc") { const old = S.prof.loc; try { await api("profile_set", { ...S.prof, loc: null }); delete S.prof.loc; render(); toast("Location removed"); } catch { S.prof.loc = old; toast("Couldn't remove it. Try again."); } }
+  else if (a === "ocancel") {
+    if (!await ask("Cancel this order? You haven't paid yet, so nothing is charged.")) return;
+    try { await api("order_cancel", { id: v }); toast("Order cancelled"); } catch (e) { toast(e.message === "already_paid" ? "You already started paying. Please message the shop." : "Couldn't cancel. Try again."); }
+    loadOrders();
+  }
+  else if (a === "oremove") { try { await api("order_remove", { id: v }); loadOrders(); } catch { toast("Couldn't remove it. Try again."); } }
   else if (a === "paynow") { S.pay = S.orders.find(o => o.id === v); go("pay"); }
-  else if (a === "send") { const i = $("msg"), text = i.value.trim(); if (!text) return; i.value = ""; try { await api("msg_send", { text, to: S.with, name: S.wname }); loadThread(); } catch { toast("Couldn't send. Try again."); } }
+  else if (a === "send") sendMsg();
   else if (a === "saveprof") { try { await api("profile_set", S.prof); toast("Profile saved"); } catch { toast("Couldn't save. Try again."); } }
-  else if (a === "atab") { S.aTab = v; render(); }
-  else if (a === "st") { const [id, status] = v.split("|"); try { await api("order_status", { id, status }); loadAdmin(); toast("Order updated"); } catch { toast("Couldn't update. Try again."); } }
-  else if (a === "chatwith") { const [u, n] = v.split("|"); S.with = u; S.wname = n; S.thread = []; S.tab = "admin"; render(); loadThread(); }
-  else if (a === "admin") { S.with = null; loadAdmin(); render(); }
+  else if (a === "otab") { S.oTab = v; render(); }
 });
 $("app").addEventListener("input", e => {
   const t = e.target;
   if (t.id === "q") { S.q = t.value; render(); }
+  else if (t.dataset.f2) S.form[t.dataset.f2] = t.checked;
   else if (t.dataset.f) S.form[t.dataset.f] = t.value;
   else if (t.dataset.p) { S.prof[t.dataset.p] = t.value; if (t.dataset.p === "phone" && !S.form.phone) S.form.phone = t.value; }
 });
-setInterval(() => { if (document.hidden || !live()) return; if (S.tab === "orders") loadOrders(); else if (S.tab === "chat" || (S.tab === "admin" && S.with)) loadThread(); }, 15000);
+let tick = 0; // near real time: check for new messages every 2.5 seconds while the chat is open
+setInterval(() => { if (document.hidden || (!live() && !PREVIEW)) return; tick++; if (S.tab === "chat") loadThread(); else if (tick % 6 === 0) { checkUnread(); if (S.tab === "orders") loadOrders(); } }, 2500);
+$("app").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && e.target.id === "msg") { e.preventDefault(); sendMsg(); } });
 
 async function start() {
   if (!live() && !PREVIEW) {
-    $("app").innerHTML = `<div class="out"><div><h2>Open in Telegram ☕</h2><p class="mute" style="margin-bottom:16px">Please order from inside Telegram.</p>${TELEGRAM_LINK ? `<a class="btn" style="display:block;text-decoration:none" href="${esc(TELEGRAM_LINK)}">Open in Telegram</a>` : ""}</div></div>`;
+    $("app").innerHTML = `<div class="out"><div><span class="lg" style="width:104px;height:104px;margin:0 auto 14px"><img src="${LOGO}" alt="Kiri coffee and food" style="width:82px"></span><h2>Open in Telegram ☕</h2><p class="mute" style="margin-bottom:16px">Please order from inside Telegram.</p>${TELEGRAM_LINK ? `<a class="btn" style="display:block;text-decoration:none" href="${esc(TELEGRAM_LINK)}">Open in Telegram</a>` : ""}
+      <p class="mute" style="font-size:12px;margin-top:22px">Details: Telegram script ${window.Telegram ? "loaded" : "not loaded"} · login data ${hashParam("tgWebAppData") ? "in address" : "none"} · platform ${esc((tg && tg.platform) || "unknown")}</p></div></div>`;
     return;
   }
+  try { M = await api("menu"); } catch (e) { return fail(e); }
+  loadBanks();
+  try { S.splash = PREVIEW || localStorage.getItem("kiriSeen") !== "1"; } catch { S.splash = true; } // the welcome screen shows on the first visit only
+  render(); // show the menu first; the saved profile is a bonus and must never block it
   try {
-    M = await api("menu"); S.prof = (await api("profile")).profile || {};
+    S.prof = (await api("profile")).profile || {};
     S.form.phone = S.prof.phone || ""; S.form.address = S.prof.address || "";
-    render();
-  } catch { $("v").innerHTML = '<p class="mute" style="padding:30px">Couldn\'t load the menu. Close and reopen the app to try again.</p>'; }
+    if (S.tab === "me" || S.tab === "cart") render();
+  } catch {}
 }
+const HINT = { no_token: "BOT_TOKEN isn't set for this project in Vercel (Production). Add it, then run npx vercel --prod.",
+  bad_signature: "BOT_TOKEN in Vercel doesn't belong to the bot that opened this app. Copy the token of @kiricoffee_food_bot from @BotFather (/token), paste it with no spaces or quotes, then run npx vercel --prod.",
+  expired: "Telegram's login data is too old. Fully close the app and open it again from the bot.",
+  no_initdata: "Open the shop from its Telegram link, not from a browser.", 404: "The order service (api/shop.js) isn't deployed on this site.", 401: "Telegram login failed. BOT_TOKEN in Vercel must be the token of the bot that opens this app.", 500: "The server hit an error. Check the settings in Vercel.", timeout: "The server took too long to answer.", network: "Couldn't reach the server. Check your connection." };
+function fail(e) {
+  $("v").innerHTML = `<div style="padding:30px"><h2>Couldn't load the menu</h2><p class="mute">${esc(HINT[e.reason] || HINT[e.status] || HINT[e.message] || e.message)}</p><p class="mute" style="font-size:12px;margin:12px 0">Code: ${esc(e.status || e.message)}${e.reason ? " · " + esc(e.reason) : ""}${e.detail ? " · " + esc(e.detail) : ""}</p><button class="btn" onclick="location.reload()">Try again</button></div>`;
+}
+// If anything breaks while loading, say so on screen instead of leaving it blank
+const stuck = () => $("v") && $("v").textContent.includes("Loading the menu");
+addEventListener("error", ev => { if (stuck()) fail({ message: "Script error: " + ev.message }); });
+addEventListener("unhandledrejection", ev => { if (stuck()) fail({ message: "Error: " + ((ev.reason && ev.reason.message) || ev.reason) }); });
 start();
 </script>
 </body>

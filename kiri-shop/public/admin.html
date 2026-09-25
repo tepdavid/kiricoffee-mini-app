@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Kiri POS</title>
+<link rel="icon" href="/kiri-logo.png">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--sat:calc(max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px)) + var(--tg-content-safe-area-inset-top,0px));--bg:#F3ECE2;--card:#FBF7F1;--ink:#4A2913;--brand:#6B3A1F;--mid:#A87752;--mute:#7d6a5b;--line:#e6dccf;--on:#fff;--glass:rgba(255,255,255,.5);--edge:rgba(255,255,255,.75);--b1:#f2b880;--b2:#ffd9c2;--b3:#c9a27c;
+box-sizing:border-box;padding-top:var(--sat)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1611;--card:#2a1f18;--ink:#f1e4d6;--brand:#c98d5c;--mid:#7a4f31;--mute:#b5a191;--line:#3d2f25;--on:#1d1611;--glass:rgba(255,255,255,.09);--edge:rgba(255,255,255,.2);--b1:#7a3f1a;--b2:#3d2a52;--b3:#5a3a2a}}
+:root[data-theme="dark"]{--bg:#1d1611;--card:#2a1f18;--ink:#f1e4d6;--brand:#c98d5c;--mid:#7a4f31;--mute:#b5a191;--line:#3d2f25;--on:#1d1611;--glass:rgba(255,255,255,.09);--edge:rgba(255,255,255,.2);--b1:#7a3f1a;--b2:#3d2a52;--b3:#5a3a2a}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.4 "Trebuchet MS","Segoe UI",system-ui,sans-serif;display:flex;justify-content:center}
+#app{width:100%;max-width:460px;height:100%;background:var(--card);position:relative;overflow:hidden;display:flex;flex-direction:column}
+main{flex:1;overflow-y:auto;padding:16px 16px 96px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--mid);outline-offset:2px}
+h2{font:700 22px Georgia,serif;color:var(--brand);margin:6px 0 12px}
+.brand{font:700 26px Georgia,serif;color:var(--brand)}.hd small{margin-left:8px;color:var(--mute)}
+.mute{color:var(--mute)}
+.in{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);font:inherit;margin:8px 0}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+.chip{flex:none;padding:7px 14px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:13px}
+.chip.on{background:var(--brand);color:var(--on);border-color:var(--brand)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:var(--bg);border-radius:16px;padding:8px;text-align:left;display:flex;flex-direction:column;gap:2px}
+.ph{height:110px;border-radius:12px;overflow:hidden;display:grid;place-items:center;font-size:44px;background:var(--line)}
+.ph img{width:100%;height:100%;object-fit:cover}
+.card b{font-size:14px;margin-top:4px}.card span{color:var(--mute);font-size:13px}
+.btn{width:100%;background:var(--brand);color:var(--on);border-radius:999px;padding:14px;font-weight:600;margin-top:10px}
+.btn.ghost{background:none;color:var(--brand);border:1px solid var(--brand)}
+.sm{padding:6px 12px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:12px}
+.sm.on{background:var(--brand);color:var(--on);border-color:var(--brand)}
+.box{background:var(--bg);border-radius:16px;padding:14px;margin:10px 0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0}
+.badge{font-size:11px;color:#fff;padding:3px 9px;border-radius:999px}
+#nav{position:absolute;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 0 calc(6px + env(safe-area-inset-bottom,0px))}
+.tab{flex:1;font-size:10.5px;color:var(--mute);position:relative}.tab b{display:block;font-size:19px;font-weight:400}.tab.on{color:var(--brand);font-weight:700}
+.dot{position:absolute;top:-2px;left:56%;background:var(--brand);color:var(--on);border-radius:9px;font-size:10px;padding:0 5px}
+#sheet{position:absolute;inset:0;background:var(--bg);display:flex;align-items:stretch;z-index:20}
+#sheet[hidden],#toast[hidden]{display:none}
+.sh{width:100%;max-height:88%;overflow-y:auto;background:var(--card);border-radius:24px 24px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.sh .ph{height:170px}
+.opts{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
+.bub{max-width:80%;padding:8px 12px;border-radius:16px;margin:6px 0;background:var(--bg)}
+.bub.me{margin-left:auto;background:var(--brand);color:var(--on)}
+.bub small{display:block;opacity:.7;font-size:10px}
+#toast{position:absolute;left:16px;right:16px;top:calc(12px + var(--sat));background:var(--brand);color:var(--on);padding:11px;border-radius:12px;text-align:center;z-index:40}
+.qr{width:100%;max-width:300px;height:auto;object-fit:contain;display:block;margin:10px auto;background:#fff;border-radius:12px}
+.out{display:grid;place-items:center;height:100%;text-align:center;padding:30px}
+/* Liquid glass */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:var(--bg)}
+.bg i{position:absolute;width:62vmax;height:62vmax;border-radius:50%;filter:blur(70px);opacity:.85;animation:drift 24s ease-in-out infinite alternate}
+.bg i:nth-child(1){background:var(--b1);top:-18vmax;left:-18vmax}
+.bg i:nth-child(2){background:var(--b2);top:25%;right:-24vmax;animation-delay:-8s}
+.bg i:nth-child(3){background:var(--b3);bottom:-22vmax;left:5%;animation-delay:-16s}
+@keyframes drift{to{transform:translate(9vmax,7vmax) scale(1.18)}}
+@media(prefers-reduced-motion:reduce){.bg i{animation:none}}
+#app{background:transparent}
+.card,.box,.chip,.sm,.in,.bub,#nav,.sh{-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%)}
+.card,.box,.chip,.sm,.in,.bub{background:var(--glass);border:1px solid var(--edge);box-shadow:inset 0 1px 0 var(--edge)}
+#nav{background:var(--glass);border-top:1px solid var(--edge)}
+.sh{background:color-mix(in srgb,var(--card) 80%,transparent);border:1px solid var(--edge)}
+.chip.on,.sm.on{background:var(--brand);border-color:transparent;color:var(--on);box-shadow:inset 0 1px 0 #fff5,0 4px 14px #0003}
+.btn{background:linear-gradient(145deg,color-mix(in srgb,var(--brand) 80%,#fff),var(--brand));box-shadow:inset 0 1px 0 #fff6,0 8px 22px #0003}
+.btn.ghost{background:var(--glass);box-shadow:none;border:1px solid var(--edge);color:var(--brand)}
+.bub.me{background:var(--brand);border-color:transparent;color:var(--on)}
+.ph{background:rgba(255,255,255,.35)}
+.hd{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.lg{flex:none;width:76px;height:76px;border-radius:22px;display:grid;place-items:center;background:rgba(255,255,255,.72);border:1px solid var(--edge);box-shadow:0 6px 18px #0002}
+.lg img{width:60px;height:auto;display:block}
+.hi{font:700 22px Georgia,serif;color:var(--brand)}
+/* Layout from the design mockup */
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.lg.mini{width:62px;height:62px;border-radius:18px}.lg.mini img{width:48px}
+.lg.big{width:170px;height:170px;border-radius:44px}.lg.big img{width:136px}
+.bell{width:42px;height:42px;border-radius:50%;background:var(--glass);border:1px solid var(--edge);font-size:18px}
+.gm{font:700 26px Georgia,serif;color:var(--brand);margin:6px 0 4px}
+.srch{text-align:left;color:var(--mute);border-radius:999px}
+.banner{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:14px 0 18px;padding:18px;border-radius:20px;color:#fff;background:linear-gradient(135deg,#b98459,#8a5a38);box-shadow:inset 0 1px 0 #fff5,0 10px 26px #0003}
+.banner small{opacity:.85}.banner h3{font:700 22px Georgia,serif;margin:2px 0 12px}
+.pill{background:#fff;color:var(--brand);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600}
+.cup{font-size:64px;line-height:1;filter:drop-shadow(0 6px 10px #0004)}
+.sec{font-size:16px}.link{font-size:13px;color:var(--brand)}
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0 18px}
+.cat{text-align:center;font-size:12px;color:var(--mute)}
+.cat span{display:grid;place-items:center;height:62px;border-radius:18px;font-size:26px;margin-bottom:5px;background:var(--glass);border:1px solid var(--edge);box-shadow:inset 0 1px 0 var(--edge)}
+.hs{display:flex;gap:12px;overflow-x:auto;padding:10px 2px 6px;scrollbar-width:none}
+.pc{flex:none;width:158px;padding:8px;border-radius:16px;background:var(--glass);border:1px solid var(--edge);box-shadow:inset 0 1px 0 var(--edge);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
+.pcm{display:block;width:100%;text-align:left}.pcm .ph{height:92px}.pcm b{display:block;font-size:14px;margin:6px 0 2px}
+.plus{width:30px;height:30px;border-radius:50%;background:var(--brand);color:var(--on);font-size:18px;line-height:30px}
+.splash{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;padding:40px 6px 8px}
+.pg{display:flex;flex-direction:column;width:100%;height:100%}
+.hero{position:relative;flex:none}
+.hero .ph{height:290px;border-radius:0 0 30px 30px;font-size:96px}
+.rb{position:absolute;top:14px;left:14px;width:42px;height:42px;border-radius:50%;background:var(--glass);border:1px solid var(--edge);font-size:20px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.pbody{flex:1;overflow-y:auto;padding:16px 18px}
+.pr{font:700 20px Georgia,serif;color:var(--brand)}
+.feat{display:flex;justify-content:space-around;text-align:center;margin:8px 0 14px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:20px}
+.feat small{display:block;font-size:11px;color:var(--mute);margin-top:3px}
+.foot{flex:none;padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px))}
+/* POS additions */
+#sheet{background:#0006;align-items:flex-end;-webkit-backdrop-filter:none;backdrop-filter:none}
+.card.off{opacity:.45}
+.bar{position:sticky;bottom:8px;width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding:14px 18px;border-radius:999px;color:var(--on);background:linear-gradient(145deg,color-mix(in srgb,var(--brand) 80%,#fff),var(--brand));box-shadow:inset 0 1px 0 #fff6,0 10px 26px #0004}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpis .box{text-align:center;padding:10px 4px}.kpis small{display:block;color:var(--mute);font-size:11px}.kpis b{font-size:17px}
+.bars{display:flex;gap:6px;align-items:flex-end;height:130px;margin-top:8px}
+.bars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.bars i{display:block;width:100%;background:var(--brand);border-radius:6px 6px 0 0;min-height:3px}.bars small{font-size:10px;color:var(--mute);margin-top:3px}
+@media print{#nav,.btn,.sm{display:none!important}}
+.composer{position:sticky;bottom:64px;display:flex;gap:8px;align-items:center;padding:8px 0}
+.composer .in{margin:0;flex:1}.composer .btn{width:auto;margin:0;padding:12px 20px}
+.bub.pend{opacity:.6}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+<div id="app"><main id="v"><p class="mute" style="padding:30px">Loading the POS…</p></main><nav id="nav"></nav><div id="sheet" hidden></div><div id="toast" hidden></div></div>
+<script>
+const PREVIEW = false; // true only for the design preview in chat. Leave false on your real site.
+const LOGO = "/kiri-logo.png";
+const CUSTOMER_LINK = "https://t.me/kiricoffee_food_bot/menu"; // your customer shop link, like https://t.me/YOUR_BOT/menu
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); try { if (tg.isFullscreen && tg.exitFullscreen) tg.exitFullscreen(); } catch {} }
+const hashParam = k => { try { return new URLSearchParams(location.hash.slice(1)).get(k) || ""; } catch { return ""; } };
+const initData = () => (tg && tg.initData) || hashParam("tgWebAppData");
+const live = () => !!initData();
+const tgUser = () => { try { return (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || JSON.parse(new URLSearchParams(initData()).get("user")) || {}; } catch { return {}; } };
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const money = n => "$" + Number(n || 0).toFixed(2);
+const code = o => o.id.split("-")[0].toUpperCase();
+const STAT = { awaiting_payment: ["Awaiting payment", "#b7791f"], paid_claimed: ["Checking payment", "#2b6cb0"], confirmed: ["Confirmed", "#2f855a"], preparing: ["Preparing", "#2f855a"], ready: ["Ready", "#2f855a"], on_the_way: ["On the way", "#2f855a"], done: ["Completed", "#718096"], cancelled: ["Cancelled", "#c53030"] };
+const ACTIVE = ["awaiting_payment", "paid_claimed", "confirmed", "preparing", "ready", "on_the_way"];
+const ICON = { Coffee: "☕", Matcha: "🍵", "Tea & More": "🫖", Food: "🍴" };
+let M = { cats: [], items: [], sizes: [], sugars: [], admin: false };
+let S = { tAfter: 0, reads: {}, unreadN: 0, seenT: false, tab: "orders", ot: "active", orders: [], cat: "", cart: [], type: "takeaway", pay: "cash", cash: "", form: { name: "", phone: "", note: "" }, item: null, receipt: null, rep: null, days: 1, threads: [], with: null, wname: "", thread: [], banks: [], edits: {}, seen: -1 };
+
+// ---- server calls (a small in-memory stand-in is used for the chat preview) ----
+async function api(a, b) {
+  if (!live()) return mock(a, b || {});
+  const c = new AbortController(), to = setTimeout(() => c.abort(), 20000); let r;
+  try { r = await fetch("/api/shop?action=" + a, { method: "POST", headers: { "Content-Type": "application/json", Authorization: "tma " + initData() }, body: JSON.stringify(b || {}), signal: c.signal }); }
+  catch (e) { throw new Error(e.name === "AbortError" ? "timeout" : "network"); } finally { clearTimeout(to); }
+  if (!r.ok) { const j = await r.json().catch(() => ({})); const e = new Error(j.error || r.status); e.status = r.status; e.reason = j.reason; e.detail = j.detail; throw e; }
+  return r.json();
+}
+const D = { orders: null, banks: null, ov: {}, msgs: null };
+try { S.reads = JSON.parse(localStorage.getItem("kiriAdminReads") || "{}"); } catch {}
+async function mock(a, b) {
+  const it = (id, name, cat, price, e, drink) => ({ id, name, cat, price: (D.ov[id] && D.ov[id].price) || price, off: !!(D.ov[id] && D.ov[id].off), img: id, e, drink });
+  const now = Date.now();
+  D.orders = D.orders || [
+    { id: "muf1a-5", uid: "5", name: "Dara Sok", username: "dara", phone: "012 345 678", items: [{ name: "Caffè Latte", size: "Large", sugar: "50%", qty: 2, price: 5.75 }], total: 13, mode: "delivery", address: "St 123, Phnom Penh", status: "paid_claimed", bank: "ABA Bank", note: "Less ice please", at: now - 6e5 },
+    { id: "muf1b-6", uid: "6", name: "Sokha Chan", phone: "098 765 432", items: [{ name: "Avocado Toast", qty: 1, price: 8.5 }], total: 8.5, mode: "pickup", status: "preparing", paid: true, bank: "ABA Bank", at: now - 18e5 },
+    { id: "muf1c-pos", uid: "", name: "Table 2", items: [{ name: "Cappuccino", size: "Small", sugar: "75%", qty: 1, price: 4.5 }], total: 4.5, mode: "dinein", source: "pos", payMethod: "cash", paid: true, status: "ready", at: now - 3e6 }];
+  D.banks = D.banks || [{ id: "aba", name: "ABA Bank", account: "000 729 100", holder: "Kiri Coffee by D.TEP", link: "https://link.payway.com.kh/ABAPAYhT530450X", on: true, qrUrl: "" }];
+  if (a === "menu") return { cats: ["Coffee", "Matcha", "Food"], items: [it("latte", "Caffè Latte", "Coffee", 4.75, "☕", 1), it("cappuccino", "Cappuccino", "Coffee", 4.5, "☕", 1), it("matcha-latte", "Matcha Latte", "Matcha", 5.5, "🍵", 1), it("avocado-toast", "Avocado Toast", "Food", 8.5, "🥑", 0), it("breakfast-sandwich", "Breakfast Sandwich", "Food", 7.5, "🥪", 0)], sizes: [["Small", 0], ["Medium", .5], ["Large", 1]], sugars: ["0%", "25%", "50%", "75%", "100%"], admin: true };
+  if (a === "admin_orders") return { orders: D.orders };
+  if (a === "order_status") { D.orders.forEach(o => { if (o.id === b.id) { o.status = b.status; if (b.status !== "cancelled") o.paid = true; } }); return { ok: 1 }; }
+  if (a === "pos_sale") { const m = (await mock("menu")).items; const items = b.items.map(i => { const x = m.find(y => y.id === i.id); const sz = [["Small", 0], ["Medium", .5], ["Large", 1]][i.size]; return { name: x.name, size: x.drink ? sz[0] : null, sugar: x.drink ? ["0%", "25%", "50%", "75%", "100%"][i.sugar] : null, qty: i.qty, price: x.price + (x.drink ? sz[1] : 0) }; }); const total = items.reduce((s, i) => s + i.price * i.qty, 0); if (b.pay === "cash" && b.cash < total) throw new Error("cash is less than the total"); const o = { id: "muf" + now.toString(36).slice(-3) + "-pos", uid: "", name: b.name || "Walk-in", items, total, mode: b.type, source: "pos", payMethod: b.pay, paid: b.pay !== "later", cash: b.cash, change: b.pay === "cash" ? +(b.cash - total).toFixed(2) : 0, status: b.pay === "later" ? "awaiting_payment" : "preparing", at: now }; D.orders.unshift(o); return { order: o }; }
+  if (a === "menu_set") { const e = D.ov[b.id] = D.ov[b.id] || {}; if (b.price === "") delete e.price; else if (b.price !== undefined) e.price = +b.price; if (b.off !== undefined) e.off = b.off; return { ok: 1 }; }
+  if (a === "report") return { days: b.days, sales: [128.5, 612.25, 2410][[1, 7, 30].indexOf(b.days)], orders: [17, 88, 341][[1, 7, 30].indexOf(b.days)], avg: 7.56, cancelled: 1, waiting: 2, byPay: { cash: 60, bank: 38.5, online: 30 }, top: [["Caffè Latte", 21], ["Cappuccino", 14], ["Matcha Latte", 9], ["Avocado Toast", 6]], byDay: b.days === 1 ? [] : [["Mon", 90], ["Tue", 120], ["Wed", 75], ["Thu", 140], ["Fri", 160], ["Sat", 210], ["Sun", 180]].slice(0, b.days === 7 ? 7 : 7) };
+  D.msgs = D.msgs || [{ text: "Is delivery free today?", at: now - 3e5, mine: false, cid: "" }];
+  if (a === "msg_threads") { const l = D.msgs[D.msgs.length - 1]; return { threads: [{ uid: "5", name: "Dara Sok", text: l.text, at: l.at, from: l.mine ? "admin" : "customer" }] }; }
+  if (a === "msg_thread") return { messages: D.msgs.filter(m => m.at > (b.after || 0)) };
+  if (a === "msg_send") { D.msgs.push({ text: b.text, at: Date.now(), mine: true, cid: b.cid }); setTimeout(() => D.msgs.push({ text: "Thank you! 🙏", at: Date.now(), mine: false, cid: "" }), 2500); return { ok: 1 }; }
+  if (a === "order_delete") { D.orders = D.orders.filter(o => o.id !== b.id); return { ok: 1 }; }
+  if (a === "banks_admin") return { banks: D.banks };
+  if (a === "bank_save") { const x = b.bank, i = D.banks.findIndex(y => y.id === x.id), n = { ...x, id: x.id || "b" + now, qrUrl: x.qr || (i >= 0 ? D.banks[i].qrUrl : "") }; delete n.qr; if (i >= 0) D.banks[i] = n; else D.banks.push(n); return { ok: 1 }; }
+  if (a === "bank_delete") { D.banks = D.banks.filter(x => x.id !== b.id); return { ok: 1 }; }
+  return { ok: 1, messages: [], threads: [] };
+}
+
+// ---- helpers ----
+let tt; const toast = m => { const e = $("toast"); e.textContent = m; e.hidden = false; clearTimeout(tt); tt = setTimeout(() => e.hidden = true, 2600); };
+const find = id => M.items.find(x => x.id === id);
+const unit = l => { const m = find(l.id); return m.price + (m.drink ? M.sizes[l.size][1] : 0); };
+const total = () => S.cart.reduce((a, l) => a + unit(l) * l.qty, 0);
+const pic = m => `<img src="/menu/${m.img}.png" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode('${m.e}\uFE0F'))">`;
+const linesText = o => o.items.map(i => `${i.qty}× ${esc(i.name)}${i.size ? ` (${esc(i.size)}, sugar ${esc(i.sugar)})` : ""}`).join(", ");
+const needs = () => S.orders.filter(o => o.status === "awaiting_payment" || o.status === "paid_claimed").length;
+const go = t => { S.tab = t; render(); if (t === "orders") loadOrders(); if (t === "reports") loadReport(); if (t === "chats") loadThreads(); if (t === "banks") loadBanks(); };
+// Telegram shows its own "Close" control at the top; this wires up the native "<" back control to sit alongside it.
+function updateBackButton() {
+  if (!tg || !tg.BackButton) return;
+  try { (M.admin && (S.item || S.tab !== "orders")) ? tg.BackButton.show() : tg.BackButton.hide(); } catch {}
+}
+function goBack() {
+  if (S.item) { S.item = null; return sheet(); }
+  if (S.tab === "receipt") { S.receipt = null; return go("pos"); }
+  if (S.tab === "cart") return go("pos");
+  if (S.tab === "chat") { S.with = null; return go("chats"); }
+  if (S.tab === "chats" || S.tab === "banks") return go("more");
+  if (S.tab !== "orders") return go("orders");
+}
+if (tg && tg.BackButton) { try { tg.BackButton.onClick(goBack); } catch {} }
+const HINT = { no_token: "BOT_TOKEN isn't set for this project in Vercel.", bad_signature: "BOT_TOKEN in Vercel doesn't belong to the bot that opened this app.", expired: "Telegram's login is too old. Fully close and reopen the app.", no_initdata: "Open this from its Telegram link.", 404: "The order service (api/shop.js) isn't deployed.", 500: "The server hit an error. Check the settings in Vercel.", timeout: "The server took too long.", network: "Couldn't reach the server." };
+
+// ---- Orders ----
+function orderCard(o) {
+  const [t, c] = STAT[o.status] || [o.status, "#718096"], pos = o.source === "pos";
+  const kind = pos ? (o.mode === "dinein" ? "Dine-in" : "Take-away") : (o.mode === "delivery" ? "Delivery" : "Pick up");
+  const pay = o.paid ? "Paid" + (o.payMethod ? " · " + (o.payMethod === "cash" ? "Cash" : "Bank") : o.bank ? " · " + esc(o.bank) : "") : o.status === "paid_claimed" ? "Customer says paid" + (o.bank ? " · " + esc(o.bank) : "") : "Not paid yet";
+  const steps = [["confirmed", o.paid ? "" : "Confirm payment"], ["preparing", "Preparing"], [o.mode === "delivery" ? "on_the_way" : "ready", o.mode === "delivery" ? "On the way" : "Ready"], ["done", "Done"], ["cancelled", "Cancel"]].filter(x => x[1]);
+  return `<div class="box"><div class="row"><b>#${code(o)} · ${kind}</b><span class="badge" style="background:${c}">${t}</span></div>
+  <div>${esc(o.name)}${o.username ? " @" + esc(o.username) : ""}${o.phone ? " · " + esc(o.phone) : ""}</div>
+  <div class="mute">${linesText(o)}</div>${o.address ? `<div class="mute">📍 ${esc(o.address)}</div>` : ""}${o.loc ? `<div class="mute">🗺 ${esc(o.locNote || "Customer shared their location")} · <button class="link" data-a="map" data-v="https://www.google.com/maps?q=${o.loc.lat},${o.loc.lng}">Open map</button></div>` : ""}${o.note ? `<div class="mute">📝 ${esc(o.note)}</div>` : ""}
+  <div class="row"><b>${money(o.total)}</b><span class="${o.paid ? "" : "mute"}">${pay}</span></div>
+  <div class="opts">${steps.map(([s, l]) => `<button class="sm ${o.status === s ? "on" : ""}" data-a="st" data-v="${o.id}|${s}">${l}</button>`).join("")}${/^\d+$/.test(o.uid) ? `<button class="sm" data-a="chatwith" data-v="${o.uid}|${esc(o.name)}">💬 Message</button>` : ""}<button class="sm" data-a="odel" data-v="${o.id}">🗑 Delete</button><span class="mute" style="font-size:12px;align-self:center">${new Date(o.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span></div></div>`;
+}
+function ordersView() {
+  const day = new Date().setHours(0, 0, 0, 0);
+  const list = S.orders.filter(o => S.ot === "active" ? ACTIVE.includes(o.status) : S.ot === "done" ? !ACTIVE.includes(o.status) && o.at >= day : true);
+  const ch = (k, l) => `<button class="chip ${S.ot === k ? "on" : ""}" data-a="ot" data-v="${k}">${l}</button>`;
+  return `<h2>Orders</h2><div class="chips">${ch("active", "Active")}${ch("done", "Finished today")}${ch("all", "All")}</div>
+  ${list.map(orderCard).join("") || '<p class="mute">No orders here.</p>'}`;
+}
+
+// ---- POS ----
+function posView() {
+  const list = M.items.filter(m => !S.cat || m.cat === S.cat), n = S.cart.reduce((a, l) => a + l.qty, 0);
+  return `<h2>New sale</h2><div class="chips">${["", ...M.cats].map(c => `<button class="chip ${S.cat === c ? "on" : ""}" data-a="pcat" data-v="${esc(c)}">${esc(c || "All")}</button>`).join("")}</div>
+  <div class="grid">${list.map(m => `<button class="card ${m.off ? "off" : ""}" data-a="pitem" data-v="${m.id}"><div class="ph">${pic(m)}</div><b>${esc(m.name)}</b><span>${m.off ? "Sold out" : money(m.price)}</span></button>`).join("")}</div>
+  ${n ? `<button class="bar" data-a="tab" data-v="cart"><span>🛒 ${n} item${n > 1 ? "s" : ""}</span><b>${money(total())} · Review ›</b></button>` : ""}`;
+}
+function cartView() {
+  if (!S.cart.length) return `<h2>Checkout</h2><p class="mute">The sale is empty.</p><button class="btn" data-a="tab" data-v="pos">Add items</button>`;
+  const t = total(), f = S.form, chip = (k, v, l, cur) => `<button class="sm ${cur === v ? "on" : ""}" data-a="${k}" data-v="${v}">${l}</button>`;
+  const quick = [...new Set([t, Math.ceil(t / 5) * 5, Math.ceil(t / 10) * 10, Math.ceil(t / 20) * 20, 50, 100].filter(x => x >= t).map(x => +x.toFixed(2)))].slice(0, 5);
+  const given = Number(S.cash) || 0;
+  return `<h2>Checkout</h2><button class="sm" data-a="tab" data-v="pos">← Add more</button>
+  ${S.cart.map((l, i) => { const m = find(l.id); return `<div class="box"><div class="row"><b>${esc(m.name)}</b><b>${money(unit(l) * l.qty)}</b></div>${m.drink ? `<div class="mute">${M.sizes[l.size][0]} · Sugar ${M.sugars[l.sugar]}</div>` : ""}<div class="row"><span><button class="sm" data-a="qty" data-v="${i}:-1" aria-label="Less">−</button> ${l.qty} <button class="sm" data-a="qty" data-v="${i}:1" aria-label="More">+</button></span><button class="sm" data-a="rm" data-v="${i}">Remove</button></div></div>`; }).join("")}
+  <b>Order type</b><div class="opts">${chip("type", "dinein", "Dine-in", S.type)}${chip("type", "takeaway", "Take-away", S.type)}</div>
+  <b>Payment</b><div class="opts">${chip("pay", "cash", "💵 Cash", S.pay)}${chip("pay", "bank", "🏦 Bank / QR", S.pay)}${chip("pay", "later", "⏳ Pay later", S.pay)}</div>
+  ${S.pay === "cash" ? `<div class="opts">${quick.map(x => `<button class="sm" data-a="cashq" data-v="${x}">${x === t ? "Exact " : ""}${money(x)}</button>`).join("")}</div><input class="in" id="cash" inputmode="decimal" placeholder="Cash received" value="${esc(S.cash)}" aria-label="Cash received">
+  <div class="box row"><span>Change</span><b id="chg">${given >= t ? money(given - t) : "—"}</b></div>` : ""}
+  ${S.pay === "bank" ? '<p class="mute">Show the customer your QR, and only tap Charge after you see the payment in your bank app.</p>' : ""}
+  <input class="in" data-f="name" placeholder="Customer or table name (optional)" value="${esc(f.name)}" aria-label="Name">
+  <input class="in" data-f="note" placeholder="Note (optional)" value="${esc(f.note)}" aria-label="Note">
+  <button class="btn" data-a="charge">${S.pay === "later" ? "Save order" : "Charge " + money(t)}</button>`;
+}
+function sheetView() {
+  const it = S.item, m = find(it.id); if (!m) return "";
+  const price = (m.price + M.sizes[it.size][1]) * it.qty;
+  return `<div class="sh"><div class="row"><h2 style="margin:0">${esc(m.name)}</h2><b>${money(m.price)}</b></div>
+  <b>Cup size</b><div class="opts">${M.sizes.map((x, i) => `<button class="sm ${it.size === i ? "on" : ""}" data-a="size" data-v="${i}">${x[0]}${x[1] ? " +" + money(x[1]) : ""}</button>`).join("")}</div>
+  <b>Sugar level</b><div class="opts">${M.sugars.map((x, i) => `<button class="sm ${it.sugar === i ? "on" : ""}" data-a="sugar" data-v="${i}">${x}</button>`).join("")}</div>
+  <div class="row"><b>Quantity</b><span><button class="sm" data-a="iq" data-v="-1" aria-label="Less">−</button> &nbsp;${it.qty}&nbsp; <button class="sm" data-a="iq" data-v="1" aria-label="More">+</button></span></div>
+  <button class="btn" data-a="padd">Add • ${money(price)}</button><button class="btn ghost" data-a="pclose">Cancel</button></div>`;
+}
+const receiptText = o => `Kiri Coffee and Food\nOrder #${code(o)} · ${new Date(o.at).toLocaleString()}\n${o.items.map(i => `${i.qty} x ${i.name}${i.size ? ` (${i.size}, ${i.sugar})` : ""}  ${money(i.price * i.qty)}`).join("\n")}\nTotal ${money(o.total)}\n${o.paid ? "Paid " + (o.payMethod === "cash" ? "cash " + money(o.cash) + " · change " + money(o.change) : "by bank") : "NOT PAID YET"}`;
+function receiptView() {
+  const o = S.receipt; if (!o) return "";
+  return `<h2>Sale done ✔</h2><div class="box" id="rc"><div class="row"><b>#${code(o)}</b><span>${o.mode === "dinein" ? "Dine-in" : "Take-away"}</span></div>${o.name ? `<div class="mute">${esc(o.name)}</div>` : ""}
+  ${o.items.map(i => `<div class="row"><span>${i.qty}× ${esc(i.name)}${i.size ? ` <span class="mute">(${esc(i.size)}, ${esc(i.sugar)})</span>` : ""}</span><span>${money(i.price * i.qty)}</span></div>`).join("")}
+  <div class="row"><b>Total</b><b>${money(o.total)}</b></div>
+  ${o.paid ? (o.payMethod === "cash" ? `<div class="row"><span>Cash</span><span>${money(o.cash)}</span></div><div class="row"><b>Change</b><b>${money(o.change)}</b></div>` : '<div class="row"><span>Paid</span><span>Bank / QR</span></div>') : '<div class="row"><b>Not paid yet</b><span class="mute">collect payment later</span></div>'}</div>
+  <button class="btn" data-a="newsale">New sale</button><button class="btn ghost" data-a="copyrc">Copy receipt</button><button class="btn ghost" data-a="print">Print</button>`;
+}
+
+// ---- Menu manager ----
+function menuView() {
+  return `<h2>Menu and prices</h2><p class="mute" style="margin-bottom:8px">Change a price or mark an item sold out. Customers and the POS see it right away. Leave the price empty to go back to the standard price.</p>
+  ${M.items.map(m => { const e = S.edits[m.id] || { price: m.price, off: m.off }; return `<div class="box"><div class="row"><b>${ICON[m.cat] || "🍽️"} ${esc(m.name)}</b><span class="mute">${esc(m.cat)}</span></div>
+    <div class="row"><input class="in" style="width:110px;margin:0" data-mp="${m.id}" inputmode="decimal" value="${esc(e.price)}" aria-label="Price of ${esc(m.name)}"><label class="row" style="gap:8px"><input type="checkbox" data-mo="${m.id}" ${e.off ? "checked" : ""}> Sold out</label><button class="sm on" data-a="msave" data-v="${m.id}">Save</button></div></div>`; }).join("")}`;
+}
+
+// ---- Reports ----
+function reportView() {
+  const r = S.rep, ch = d => `<button class="chip ${S.days === d ? "on" : ""}" data-a="days" data-v="${d}">${d === 1 ? "Today" : d + " days"}</button>`;
+  const head = `<h2>Sales report</h2><div class="chips">${ch(1)}${ch(7)}${ch(30)}</div>`;
+  if (!r) return head + '<p class="mute">Loading…</p>';
+  const max = Math.max(1, ...r.byDay.map(x => x[1]));
+  return head + `<div class="kpis"><div class="box"><small>Sales</small><b>${money(r.sales)}</b></div><div class="box"><small>Orders</small><b>${r.orders}</b></div><div class="box"><small>Average</small><b>${money(r.avg)}</b></div></div>
+  <div class="box"><b>How customers paid</b><div class="row"><span>💵 Cash (POS)</span><span>${money(r.byPay.cash)}</span></div><div class="row"><span>🏦 Bank (POS)</span><span>${money(r.byPay.bank)}</span></div><div class="row"><span>📱 Online orders</span><span>${money(r.byPay.online)}</span></div></div>
+  ${r.waiting ? `<p class="mute">⏳ ${r.waiting} order${r.waiting > 1 ? "s" : ""} still waiting for payment (not counted). ${r.cancelled ? r.cancelled + " cancelled." : ""}</p>` : r.cancelled ? `<p class="mute">${r.cancelled} cancelled.</p>` : ""}
+  <div class="box"><b>Best sellers</b>${r.top.map(([n, q]) => `<div class="row"><span>${esc(n)}</span><b>${q}</b></div>`).join("") || '<p class="mute">No sales yet.</p>'}</div>
+  ${r.byDay.length > 1 ? `<div class="box"><b>By day</b><div class="bars">${r.byDay.map(([d, v]) => `<div><i style="height:${Math.round(v / max * 100)}px"></i><small>${esc(String(d).slice(-5))}</small></div>`).join("")}</div></div>` : ""}`;
+}
+
+// ---- More: messages, banks ----
+function moreView() {
+  const u = tgUser();
+  return `<h2>More</h2><div class="box"><b>${esc([u.first_name, u.last_name].filter(Boolean).join(" ") || "Staff")}</b><div class="mute">${u.username ? "@" + esc(u.username) : "Shop staff"}</div></div>
+  <button class="btn ghost" data-a="tab" data-v="chats">💬 Customer messages</button><button class="btn ghost" data-a="tab" data-v="banks">🏦 Banks and payment QR</button>
+  ${CUSTOMER_LINK ? `<button class="btn ghost" data-a="ext" data-v="${esc(CUSTOMER_LINK)}">☕ Open the customer shop</button>` : ""}`;
+}
+const unreadT = t => t.from === "customer" && t.at > (S.reads[t.uid] || 0);
+function chatsView() {
+  return `<h2>Customer messages</h2><button class="sm" data-a="tab" data-v="more">← Back</button>${S.threads.map(x => `<button class="box row" style="width:100%;text-align:left" data-a="chatwith" data-v="${x.uid}|${esc(x.name)}"><span><b>${unreadT(x) ? "● " : ""}${esc(x.name)}</b><br><span class="mute">${x.from === "admin" ? "You: " : ""}${esc(x.text)}</span></span><span class="mute" style="font-size:11px">${new Date(x.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span></button>`).join("") || '<p class="mute">No messages yet.</p>'}`;
+}
+const threadHtml = () => S.thread.map(m => `<div class="bub ${m.mine ? "me" : ""}${m.pending ? " pend" : ""}">${esc(m.text)}<small>${m.pending ? "Sending…" : new Date(m.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</small></div>`).join("") || '<p class="mute">No messages yet. Say hello 👋</p>';
+function chatView() {
+  return `<h2>Chat with ${esc(S.wname)}</h2><button class="sm" data-a="tab" data-v="chats">← Back</button>
+  <div id="th">${threadHtml()}</div>
+  <div class="composer"><input id="msg" class="in" placeholder="Type a reply…" aria-label="Reply" autocomplete="off"><button class="btn" data-a="send">Send</button></div>`;
+}
+function mergeMsgs(list) { // new messages replace the "Sending…" copies, and nothing is shown twice
+  for (const m of list) {
+    const i = S.thread.findIndex(x => (m.cid && x.cid === m.cid) || (x.at === m.at && x.text === m.text));
+    if (i >= 0) S.thread[i] = m; else S.thread.push(m);
+    S.tAfter = Math.max(S.tAfter, m.at);
+  }
+  S.thread.sort((a, b) => a.at - b.at);
+}
+function paintThread() {
+  const th = $("th"); if (!th) return;
+  const box = $("v"), stick = box.scrollHeight - box.scrollTop - box.clientHeight < 160;
+  th.innerHTML = threadHtml(); if (stick) box.scrollTop = box.scrollHeight;
+}
+function markRead() {
+  S.reads[S.with] = Math.max(S.reads[S.with] || 0, S.tAfter);
+  try { localStorage.setItem("kiriAdminReads", JSON.stringify(S.reads)); } catch {}
+  const n = S.threads.filter(unreadT).length; if (n !== S.unreadN) { S.unreadN = n; nav(); }
+}
+async function sendMsg() {
+  const i = $("msg"), text = i.value.trim(); if (!text) return; i.value = "";
+  const cid = Math.random().toString(36).slice(2, 10);
+  S.thread.push({ text, at: Date.now(), mine: true, cid, pending: true }); paintThread();
+  try { await api("msg_send", { text, cid, to: S.with, name: S.wname }); loadThread(); }
+  catch { S.thread = S.thread.filter(m => m.cid !== cid); paintThread(); i.value = text; toast("Couldn't send. Try again."); }
+}
+const bankForm = (x, i) => `<div class="box"><b>${esc(x.name || "New bank")}</b>
+  <input class="in" data-bi="${i}" data-bf="name" placeholder="Bank name (for example ACLEDA)" value="${esc(x.name)}" aria-label="Bank name">
+  <input class="in" data-bi="${i}" data-bf="account" placeholder="Account number" value="${esc(x.account)}" aria-label="Account number">
+  <input class="in" data-bi="${i}" data-bf="holder" placeholder="Account name" value="${esc(x.holder)}" aria-label="Account name">
+  <input class="in" data-bi="${i}" data-bf="link" placeholder="Payment link (optional, starts with https://)" value="${esc(x.link)}" aria-label="Payment link">
+  <label class="row"><span>Show to customers</span><input type="checkbox" data-bi="${i}" data-bf="on" ${x.on !== false ? "checked" : ""}></label>
+  ${x.newQr || x.qrUrl ? `<img class="qr" src="${esc(x.newQr || x.qrUrl)}" alt="QR code">` : x.hasQr ? '<p class="mute">QR picture saved.</p>' : ""}
+  <label class="sm" style="display:inline-block">${x.newQr || x.qrUrl || x.hasQr ? "Replace QR picture" : "Upload QR picture"}<input type="file" accept="image/*" data-qi="${i}" hidden></label>
+  <div class="opts" style="margin-top:10px"><button class="sm on" data-a="savebank" data-v="${i}">Save</button><button class="sm" data-a="delbank" data-v="${i}">Delete</button></div></div>`;
+function banksView() {
+  return `<h2>Banks</h2><button class="sm" data-a="tab" data-v="more">← Back</button><p class="mute" style="margin:8px 0">Customers choose one of these banks when they pay. Turn a bank off to hide it.</p>${S.banks.map(bankForm).join("")}
+  <p class="mute" style="margin:10px 0 4px">Add a bank:</p><div class="opts">${["ABA Bank", "ACLEDA Bank", "Wing", "Bakong", "Other"].map(n => `<button class="sm" data-a="addbank" data-v="${n === "Other" ? "" : n}">+ ${n}</button>`).join("")}</div>`;
+}
+
+// ---- shell ----
+function nav() {
+  const n = S.cart.reduce((a, l) => a + l.qty, 0), a = needs(), cur = { cart: "pos", chats: "more", chat: "more", banks: "more", receipt: "pos" }[S.tab] || S.tab;
+  const t = [["orders", "🧾", "Orders", a], ["pos", "🛒", "POS", n], ["menu", "📋", "Menu", 0], ["reports", "📊", "Reports", 0], ["more", "⚙️", "More", S.unreadN]];
+  $("nav").innerHTML = t.map(([k, i, l, c]) => `<button class="tab ${cur === k ? "on" : ""}" data-a="tab" data-v="${k}"><b>${i}</b>${l}${c ? `<span class="dot">${c}</span>` : ""}</button>`).join("");
+}
+function render() {
+  if (!M.admin) return;
+  const f = document.activeElement && document.activeElement.id;
+  $("v").innerHTML = { orders: ordersView, pos: posView, cart: cartView, receipt: receiptView, menu: menuView, reports: reportView, more: moreView, chats: chatsView, chat: chatView, banks: banksView }[S.tab]();
+  nav(); if (f === "cash") { const c = $("cash"); c.focus(); c.setSelectionRange(c.value.length, c.value.length); }
+  updateBackButton();
+}
+function sheet() { $("sheet").innerHTML = S.item ? sheetView() : ""; $("sheet").hidden = !S.item; updateBackButton(); }
+
+// ---- data ----
+async function loadOrders() {
+  try {
+    S.orders = (await api("admin_orders")).orders; const n = needs();
+    if (S.seen >= 0 && n > S.seen) { toast("🔔 New order to check"); try { tg.HapticFeedback.notificationOccurred("success"); } catch {} }
+    S.seen = n; if (S.tab === "orders") render(); else nav();
+  } catch {}
+}
+async function loadReport() { S.rep = null; render(); try { S.rep = await api("report", { days: S.days, tz: new Date().getTimezoneOffset() }); if (S.tab === "reports") render(); } catch { toast("Couldn't load the report."); } }
+async function loadThreads() {
+  try {
+    S.threads = (await api("msg_threads")).threads; const n = S.threads.filter(unreadT).length;
+    if (S.seenT && n > S.unreadN) { toast("💬 New customer message"); try { tg.HapticFeedback.notificationOccurred("success"); } catch {} }
+    S.seenT = true; S.unreadN = n; if (S.tab === "chats") render(); else nav();
+  } catch {}
+}
+async function loadThread() {
+  try { mergeMsgs((await api("msg_thread", { with: S.with, after: S.tAfter })).messages); if (S.tab === "chat") { paintThread(); markRead(); } } catch {}
+}
+async function loadBanks() { try { S.banks = (await api("banks_admin")).banks; if (S.tab === "banks") render(); } catch {} }
+async function loadMenu() { M = { ...M, ...(await api("menu")) }; S.edits = {}; }
+async function qrFile(f) {
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(f); });
+  const k = Math.min(1, 1000 / Math.max(img.width, img.height)), c = document.createElement("canvas");
+  c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL("image/jpeg", 0.9);
+}
+const ask = msg => new Promise(res => (tg && tg.isVersionAtLeast && tg.isVersionAtLeast("6.2") && tg.showConfirm) ? tg.showConfirm(msg, res) : res(confirm(msg)));
+
+// ---- events ----
+$("app").addEventListener("click", async e => {
+  const t = e.target.closest("[data-a]"); if (!t) return; const a = t.dataset.a, v = t.dataset.v;
+  if (a === "tab") go(v);
+  else if (a === "ot") { S.ot = v; render(); }
+  else if (a === "st") { const [id, status] = v.split("|"); if (status === "cancelled" && !await ask("Cancel this order?")) return; try { await api("order_status", { id, status }); await loadOrders(); toast("Order updated"); } catch { toast("Couldn't update. Try again."); } }
+  else if (a === "odel") { if (!await ask("Delete this order for good? It also disappears from your reports.")) return; try { await api("order_delete", { id: v }); await loadOrders(); toast("Order deleted"); } catch { toast("Couldn't delete. Try again."); } }
+  else if (a === "map") { try { tg.openLink(v); } catch { window.open(v, "_blank"); } }
+  else if (a === "chatwith") { const [u, n] = v.split("|"); S.with = u; S.wname = n; S.thread = []; S.tAfter = 0; go("chat"); loadThread(); }
+  else if (a === "send") sendMsg();
+  else if (a === "pcat") { S.cat = v; render(); }
+  else if (a === "pitem") {
+    const m = find(v); if (m.off) return toast(m.name + " is sold out");
+    if (m.drink) { S.item = { id: v, size: 0, sugar: 2, qty: 1 }; sheet(); } else { const same = S.cart.find(l => l.id === v); if (same) same.qty++; else S.cart.push({ id: v, size: 0, sugar: 0, qty: 1 }); render(); toast(m.name + " added"); }
+  }
+  else if (a === "size" || a === "sugar") { S.item[a] = +v; sheet(); }
+  else if (a === "iq") { S.item.qty = Math.max(1, S.item.qty + +v); sheet(); }
+  else if (a === "pclose") { S.item = null; sheet(); }
+  else if (a === "padd") { const x = S.item, same = S.cart.find(l => l.id === x.id && l.size === x.size && l.sugar === x.sugar); if (same) same.qty += x.qty; else S.cart.push({ ...x }); S.item = null; sheet(); render(); toast(find(x.id).name + " added"); }
+  else if (a === "qty") { const [i, d] = v.split(":"); S.cart[+i].qty = Math.max(1, S.cart[+i].qty + +d); render(); }
+  else if (a === "rm") { S.cart.splice(+v, 1); render(); }
+  else if (a === "type") { S.type = v; render(); }
+  else if (a === "pay") { S.pay = v; render(); }
+  else if (a === "cashq") { S.cash = String(v); render(); }
+  else if (a === "charge") {
+    const t = total(), cash = Number(S.cash) || 0;
+    if (S.pay === "cash" && cash < t) return toast("Cash received is less than " + money(t));
+    try {
+      const r = await api("pos_sale", { items: S.cart.map(l => ({ id: l.id, size: l.size, sugar: l.sugar, qty: l.qty })), type: S.type, pay: S.pay, cash, name: S.form.name, note: S.form.note });
+      S.receipt = r.order; S.cart = []; S.cash = ""; S.form = { name: "", phone: "", note: "" }; go("receipt"); loadOrders();
+    } catch (err) { toast(String(err.message).startsWith("sold out") ? "Sorry, " + err.message : "Couldn't save the sale. Try again."); loadMenu().then(render).catch(() => {}); }
+  }
+  else if (a === "newsale") { S.receipt = null; go("pos"); }
+  else if (a === "copyrc") { try { await navigator.clipboard.writeText(receiptText(S.receipt)); toast("Receipt copied"); } catch { toast("Couldn't copy"); } }
+  else if (a === "print") window.print();
+  else if (a === "msave") { const e = S.edits[v] || {}, m = find(v); try { await api("menu_set", { id: v, price: e.price === undefined ? String(m.price) : String(e.price).trim(), off: e.off === undefined ? m.off : e.off }); await loadMenu(); render(); toast("Saved"); } catch { toast("Couldn't save. Check the price."); } }
+  else if (a === "days") { S.days = +v; loadReport(); }
+  else if (a === "ext") { try { tg.openTelegramLink ? tg.openTelegramLink(v) : window.open(v, "_blank"); } catch { window.open(v, "_blank"); } }
+  else if (a === "addbank") { S.banks.push({ id: "", name: v || "", account: "", holder: "", link: "", on: true }); render(); }
+  else if (a === "savebank") {
+    const x = S.banks[+v]; if (!x.name.trim()) return toast("Please type the bank name");
+    try { await api("bank_save", { bank: { id: x.id, name: x.name, account: x.account, holder: x.holder, link: x.link, on: x.on !== false, qr: x.newQr } }); toast("Bank saved"); await loadBanks(); }
+    catch (err) { toast(err.message === "bad image" ? "That picture is too big. Try a smaller one." : "Couldn't save. Try again."); }
+  }
+  else if (a === "delbank") {
+    const x = S.banks[+v]; if (!x.id) { S.banks.splice(+v, 1); return render(); }
+    if (!await ask("Delete " + (x.name || "this bank") + "? Customers will no longer see it.")) return;
+    try { await api("bank_delete", { id: x.id }); toast("Bank deleted"); await loadBanks(); } catch { toast("Couldn't delete. Try again."); }
+  }
+});
+$("app").addEventListener("change", async e => {
+  const f = e.target.files && e.target.files[0]; if (!f || e.target.dataset.qi === undefined) return;
+  try { S.banks[+e.target.dataset.qi].newQr = await qrFile(f); render(); toast("Picture ready. Tap Save."); } catch { toast("Couldn't read that picture."); }
+});
+$("app").addEventListener("input", e => {
+  const t = e.target, d = t.dataset;
+  if (t.id === "cash") { S.cash = t.value; const c = Number(t.value) || 0, x = $("chg"); if (x) x.textContent = c >= total() ? money(c - total()) : "—"; }
+  else if (d.f) S.form[d.f] = t.value;
+  else if (d.mp) (S.edits[d.mp] = S.edits[d.mp] || {}).price = t.value;
+  else if (d.mo) (S.edits[d.mo] = S.edits[d.mo] || {}).off = t.checked;
+  else if (d.bf) S.banks[+d.bi][d.bf] = t.type === "checkbox" ? t.checked : t.value;
+});
+let tick = 0; // near real time: new messages show up within about 2.5 seconds while a chat is open
+setInterval(() => {
+  if (document.hidden || (!live() && !PREVIEW) || !M.admin) return; tick++;
+  if (S.tab === "chat") loadThread(); else if (S.tab === "chats" && tick % 3 === 0) loadThreads(); else if (tick % 5 === 0) { loadOrders(); loadThreads(); }
+}, 2500);
+$("app").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && e.target.id === "msg") { e.preventDefault(); sendMsg(); } });
+
+const fail = e => { $("v").innerHTML = `<div style="padding:30px"><h2>Couldn't open the POS</h2><p class="mute">${esc(HINT[e.reason] || HINT[e.status] || HINT[e.message] || e.message)}</p><p class="mute" style="font-size:12px;margin:12px 0">Code: ${esc(e.status || e.message)}${e.reason ? " · " + esc(e.reason) : ""}${e.detail ? " · " + esc(e.detail) : ""}</p><button class="btn" onclick="location.reload()">Try again</button></div>`; };
+const stuck = () => $("v") && $("v").textContent.includes("Loading");
+addEventListener("error", ev => { if (stuck()) fail({ message: "Script error: " + ev.message }); });
+addEventListener("unhandledrejection", ev => { if (stuck()) fail({ message: "Error: " + ((ev.reason && ev.reason.message) || ev.reason) }); });
+async function start() {
+  if (!live() && !PREVIEW) { $("app").innerHTML = `<div class="out"><div><span class="lg" style="width:104px;height:104px;margin:0 auto 14px"><img src="${LOGO}" alt="Kiri" style="width:82px"></span><h2>Kiri POS ☕</h2><p class="mute">This app is for the shop team and opens inside Telegram.</p></div></div>`; return; }
+  try { M = { ...M, ...(await api("menu")) }; } catch (e) { return fail(e); }
+  if (!M.admin) { $("app").innerHTML = `<div class="out"><div><span class="lg" style="width:104px;height:104px;margin:0 auto 14px"><img src="${LOGO}" alt="Kiri" style="width:82px"></span><h2>Staff only</h2><p class="mute">This is the shop team's POS. Customers can order in the Kiri shop app.</p></div></div>`; return; }
+  render(); loadOrders(); loadThreads();
+}
+start();
+</script>
+</body>
+</html>
