@@ -1,0 +1,16 @@
+KIRI COFFEE — GITHUB UPLOAD
+
+Upload EVERYTHING inside this folder to your empty GitHub repository.
+
+Important files included:
+- .env.example
+- .gitignore
+- package.json
+- prisma/schema.prisma
+- app/
+- lib/
+- public/
+
+Do NOT upload real .env.local files, database passwords, Telegram bot tokens, or payment secrets.
+
+After uploading, the GitHub repository root should contain app/, lib/, prisma/, public/, package.json, .env.example and .gitignore.
