@@ -1,0 +1,17 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+
+enum OrderStatus { PENDING CONFIRMED PREPARING READY COMPLETED OUT_FOR_DELIVERY DELIVERED CANCELLED }
+enum OrderType { PICKUP DELIVERY }
+enum PaymentMethod { CASH BAKONG }
+enum PaymentStatus { PENDING PAID FAILED REFUNDED }
+
+model User { id String @id @default(cuid()) telegramId String @unique firstName String? lastName String? username String? phone String? createdAt DateTime @default(now()) updatedAt DateTime @updatedAt orders Order[] }
+model Category { id String @id @default(cuid()) name String slug String @unique imageUrl String? sortOrder Int @default(0) isActive Boolean @default(true) createdAt DateTime @default(now()) products Product[] }
+model Product { id String @id @default(cuid()) categoryId String name String description String? imageUrl String? isActive Boolean @default(true) sortOrder Int @default(0) createdAt DateTime @default(now()) updatedAt DateTime @updatedAt category Category @relation(fields:[categoryId],references:[id]) variants ProductVariant[] orderItems OrderItem[] }
+model ProductVariant { id String @id @default(cuid()) productId String name String price Decimal @db.Decimal(10,2) isAvailable Boolean @default(true) sortOrder Int @default(0) product Product @relation(fields:[productId],references:[id]) orderItems OrderItem[] }
+model Order { id String @id @default(cuid()) userId String status OrderStatus @default(PENDING) orderType OrderType @default(PICKUP) subtotal Decimal @db.Decimal(10,2) deliveryFee Decimal @db.Decimal(10,2) @default(0) total Decimal @db.Decimal(10,2) paymentMethod PaymentMethod @default(CASH) paymentStatus PaymentStatus @default(PENDING) customerNote String? createdAt DateTime @default(now()) updatedAt DateTime @updatedAt user User @relation(fields:[userId],references:[id]) items OrderItem[] payments Payment[] }
+model OrderItem { id String @id @default(cuid()) orderId String productId String variantId String productName String variantName String quantity Int unitPrice Decimal @db.Decimal(10,2) totalPrice Decimal @db.Decimal(10,2) order Order @relation(fields:[orderId],references:[id]) product Product @relation(fields:[productId],references:[id]) variant ProductVariant @relation(fields:[variantId],references:[id]) }
+model Payment { id String @id @default(cuid()) orderId String provider String transactionId String? amount Decimal @db.Decimal(10,2) status PaymentStatus @default(PENDING) paidAt DateTime? createdAt DateTime @default(now()) order Order @relation(fields:[orderId],references:[id]) }
+model StoreSetting { id String @id @default(cuid()) key String @unique value String createdAt DateTime @default(now()) updatedAt DateTime @updatedAt }
+model AdminUser { id String @id @default(cuid()) email String @unique name String? role String @default("STAFF") createdAt DateTime @default(now()) }
